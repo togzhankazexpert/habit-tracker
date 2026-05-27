@@ -955,6 +955,43 @@ function renderListeningContent() {
     ${actionBtn}`;
 }
 
+// Preferred British voices in priority order
+const GB_VOICE_NAMES = ['Daniel','Serena','Oliver','Kate','Martha','Thomas','Arthur','Ava','Moira'];
+
+function getBritishVoice() {
+  const voices = speechSynthesis.getVoices();
+  // 1. Named British voices (most natural)
+  for (const name of GB_VOICE_NAMES) {
+    const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
+    if (v) return v;
+  }
+  // 2. Any en-GB locale
+  const gb = voices.find(v => v.lang === 'en-GB');
+  if (gb) return gb;
+  // 3. Any en-GB-ish locale
+  const gbLoose = voices.find(v => v.lang.startsWith('en-GB'));
+  if (gbLoose) return gbLoose;
+  // 4. en-AU as fallback (non-American)
+  const au = voices.find(v => v.lang.startsWith('en-AU'));
+  if (au) return au;
+  // 5. Any English voice
+  return voices.find(v => v.lang.startsWith('en')) || null;
+}
+
+function applyBritishVoice(utterance) {
+  const voice = getBritishVoice();
+  if (voice) { utterance.voice = voice; utterance.lang = voice.lang; return; }
+  // Voices not loaded yet — wait for them then re-speak
+  utterance.lang = 'en-GB';
+  const onLoaded = () => {
+    speechSynthesis.onvoiceschanged = null;
+    const v = getBritishVoice();
+    if (v) { utterance.voice = v; utterance.lang = v.lang; }
+    speechSynthesis.speak(utterance);
+  };
+  speechSynthesis.onvoiceschanged = onLoaded;
+}
+
 function initListening() {}
 
 window.toggleTTS = function() {
@@ -968,9 +1005,7 @@ window.toggleTTS = function() {
   const ex = LISTENING_EXERCISES[listenIdx];
   ttsUtterance = new SpeechSynthesisUtterance(ex.script);
   ttsUtterance.rate = 0.85; ttsUtterance.pitch = 1;
-  let voices = speechSynthesis.getVoices();
-  const enVoice = voices.find(v => v.lang.startsWith('en'));
-  if(enVoice) ttsUtterance.voice = enVoice;
+  applyBritishVoice(ttsUtterance);
   isPlaying = true;
   const btn = document.getElementById('play-btn');
   if(btn) btn.textContent='⏸';
@@ -1099,10 +1134,12 @@ window.openWordDetail = function(idx) {
     </div>`);
 };
 window.speakWord = function(word) {
-  if(window.speechSynthesis) {
-    const u = new SpeechSynthesisUtterance(word);
-    u.rate = 0.8; speechSynthesis.speak(u);
-  }
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  const u = new SpeechSynthesisUtterance(word);
+  u.rate = 0.78; u.pitch = 1;
+  applyBritishVoice(u);
+  speechSynthesis.speak(u);
 };
 
 // ═══════════════════════════════════════════════════════
@@ -1348,6 +1385,8 @@ updateStreak();
 render();
 makeSwipeable(document.getElementById('sh'), closeSh);
 injectIcons();
+// Trigger voice list load early so British voice is ready on first tap
+if(window.speechSynthesis) { speechSynthesis.getVoices(); }
 if(S.settings.notif && 'Notification' in window && Notification.permission==='granted') scheduleNotification();
 else if(S.settings.notif && 'Notification' in window && Notification.permission==='default') {
   setTimeout(requestNotifPermission, 3000);
