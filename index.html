@@ -4,9 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
   <meta name="apple-mobile-web-app-capable" content="yes">
-  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Привычки">
-  <meta name="theme-color" content="#F2F2F7">
+  <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
   <title>Привычки</title>
   <style>
     *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -241,6 +242,24 @@
     .popin{animation:popin .28s cubic-bezier(.34,1.56,.64,1)}
     @keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
     .fadein{animation:fadein .3s ease both}
+
+    /* APPLE POLISH */
+    html,body{-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+    .screen-header{padding:calc(env(safe-area-inset-top) + 16px) 20px 16px}
+
+    /* DARK MODE */
+    @media(prefers-color-scheme:dark){
+      :root{
+        --gray6:#000000;--gray5:#2C2C2E;--gray4:#3A3A3C;
+        --gray3:#48484A;--gray2:#636366;
+        --card:#1C1C1E;--text:#FFFFFF;
+        --text2:rgba(235,235,245,.6);--sep:rgba(84,84,88,.65);
+      }
+      #tab-bar{background:rgba(28,28,30,.94)}
+      .cbtn.sel{border-color:#fff}
+      .streak-card{background:linear-gradient(135deg,#FF9500,#FF6B00)}
+      input[type=range]{background:var(--gray5)}
+    }
   </style>
 </head>
 <body>
@@ -600,8 +619,10 @@ function openDet(id) {
   document.getElementById('det-sh').classList.add('on');
 }
 function closeDet() {
+  const sh = document.getElementById('det-sh');
+  sh.style.transform = '';
   document.getElementById('det-ov').classList.remove('on');
-  document.getElementById('det-sh').classList.remove('on');
+  sh.classList.remove('on');
   detailId = null;
 }
 function renderDet(h) {
@@ -675,8 +696,10 @@ function openEdit(id) {
   setTimeout(()=>openAdd(id), 350);
 }
 function closeAdd() {
+  const sh = document.getElementById('add-sh');
+  sh.style.transform = '';
   document.getElementById('add-ov').classList.remove('on');
-  document.getElementById('add-sh').classList.remove('on');
+  sh.classList.remove('on');
   ef=null;
 }
 
@@ -727,8 +750,49 @@ function saveHabit() {
   save(); closeAdd(); render();
 }
 
+// ─── SWIPE TO DISMISS ────────────────────────────────────────
+function makeSwipeable(sheetEl, closeFn) {
+  const handle = sheetEl.querySelector('.sheet-handle');
+  if (!handle) return;
+  let startY = 0, active = false;
+  handle.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY; active = true;
+    sheetEl.style.transition = 'none';
+  }, {passive:true});
+  handle.addEventListener('touchmove', e => {
+    if (!active) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    sheetEl.style.transform = `translateX(-50%) translateY(${dy}px)`;
+  }, {passive:true});
+  handle.addEventListener('touchend', e => {
+    if (!active) return; active = false;
+    sheetEl.style.transition = '';
+    const dy = Math.max(0, e.changedTouches[0].clientY - startY);
+    if (dy > 100) closeFn();
+    else sheetEl.style.transform = '';
+  }, {passive:true});
+}
+
+// ─── APP ICON ────────────────────────────────────────────────
+function injectIcon() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 512;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 512, 512);
+  g.addColorStop(0, '#007AFF'); g.addColorStop(1, '#34C759');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+  ctx.font = '300px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('✅', 256, 272);
+  const l = document.createElement('link');
+  l.rel = 'apple-touch-icon'; l.href = c.toDataURL();
+  document.head.appendChild(l);
+}
+
 // ─── INIT ────────────────────────────────────────────────────
 render();
+makeSwipeable(document.getElementById('det-sh'), closeDet);
+makeSwipeable(document.getElementById('add-sh'), closeAdd);
+injectIcon();
 </script>
 </body>
 </html>
