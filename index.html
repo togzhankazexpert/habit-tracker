@@ -8,6 +8,7 @@
 <meta name="apple-mobile-web-app-title" content="IELTS Tutor">
 <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme:light)">
 <meta name="theme-color" content="#000000" media="(prefers-color-scheme:dark)">
+<link rel="manifest" href="manifest.json">
 <title>IELTS Personal Tutor</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
@@ -1302,11 +1303,51 @@ function makeSwipeable(el, closeFn) {
 }
 
 // ═══════════════════════════════════════════════════════
+// PWA ICONS (generated via canvas — no external files needed)
+// ═══════════════════════════════════════════════════════
+function injectIcons() {
+  [192, 512].forEach(size => {
+    const c = document.createElement('canvas');
+    c.width = c.height = size;
+    const ctx = c.getContext('2d');
+    const r = size * 0.22;
+    ctx.beginPath();
+    ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
+    ctx.arcTo(size, 0, size, r, r);
+    ctx.lineTo(size, size-r);
+    ctx.arcTo(size, size, size-r, size, r);
+    ctx.lineTo(r, size);
+    ctx.arcTo(0, size, 0, size-r, r);
+    ctx.lineTo(0, r);
+    ctx.arcTo(0, 0, r, 0, r);
+    ctx.closePath();
+    const g = ctx.createLinearGradient(0, 0, size, size);
+    g.addColorStop(0, '#007AFF'); g.addColorStop(1, '#5856D6');
+    ctx.fillStyle = g; ctx.fill();
+    ctx.font = `bold ${size*0.42}px serif`;
+    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('📚', size/2, size/2 + size*0.04);
+    const url = c.toDataURL('image/png');
+    const link = document.createElement('link');
+    link.rel = size===192 ? 'apple-touch-icon' : 'icon';
+    link.sizes = `${size}x${size}`; link.href = url;
+    document.head.appendChild(link);
+    // Patch manifest icon src so browsers can resolve it
+    if(size===192||size===512) {
+      fetch('manifest.json').then(r=>r.json()).then(m=>{
+        m.icons.forEach(ic=>{ if(ic.sizes===`${size}x${size}`) ic.src=url; });
+      }).catch(()=>{});
+    }
+  });
+}
+
+// ═══════════════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════════════
 updateStreak();
 render();
 makeSwipeable(document.getElementById('sh'), closeSh);
+injectIcons();
 if(S.settings.notif && 'Notification' in window && Notification.permission==='granted') scheduleNotification();
 else if(S.settings.notif && 'Notification' in window && Notification.permission==='default') {
   setTimeout(requestNotifPermission, 3000);
