@@ -1,1396 +1,882 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<meta name="apple-mobile-web-app-capable" content="yes">
-<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="IELTS Tutor">
-<meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme:light)">
-<meta name="theme-color" content="#000000" media="(prefers-color-scheme:dark)">
-<link rel="manifest" href="manifest.json">
-<title>IELTS Personal Tutor</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
-:root{
-  --blue:#007AFF;--green:#34C759;--orange:#FF9F0A;--red:#FF3B30;
-  --purple:#AF52DE;--teal:#5AC8FA;--indigo:#5856D6;
-  --gray:#8E8E93;--gray2:#AEAEB2;--gray3:#C7C7CC;--gray4:#D1D1D6;--gray5:#E5E5EA;--gray6:#F2F2F7;
-  --card:#FFFFFF;--text:#000000;--text2:rgba(60,60,67,.6);--sep:rgba(60,60,67,.12);
-}
-html,body{height:100%;font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;background:var(--gray6);color:var(--text);overflow:hidden;-webkit-font-smoothing:antialiased;overscroll-behavior:none}
-#app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
-.screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(83px + env(safe-area-inset-bottom));display:none}
-.screen.active{display:block}
-#tab-bar{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:430px;height:calc(49px + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);background:rgba(249,249,249,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-top:.5px solid var(--sep);display:flex;align-items:flex-start;justify-content:space-around;z-index:100}
-.tab-item{flex:1;height:49px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;user-select:none}
-.tab-icon{font-size:20px;line-height:1}
-.tab-label{font-size:9px;font-weight:500;color:var(--gray)}
-.tab-item.active .tab-label{color:var(--blue)}
-.screen-header{padding:calc(env(safe-area-inset-top)+16px) 20px 12px;background:var(--gray6)}
-.screen-title{font-size:34px;font-weight:700;letter-spacing:.37px}
-.screen-subtitle{font-size:15px;color:var(--text2);margin-top:2px}
-.section{margin:0 16px 16px}
-.sec-title{font-size:13px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:0 4px 8px}
-.card{background:var(--card);border-radius:16px;overflow:hidden}
-.card-row{display:flex;align-items:center;padding:13px 16px;border-bottom:.5px solid var(--sep);gap:12px}
-.card-row:last-child{border-bottom:none}
-/* Hero banner */
-.hero{margin:0 16px 16px;border-radius:20px;padding:20px;color:#fff;position:relative;overflow:hidden}
-.hero-bg-study{background:linear-gradient(135deg,#007AFF,#5856D6)}
-.hero-bg-speak{background:linear-gradient(135deg,#FF2D55,#FF9F0A)}
-.hero-bg-read{background:linear-gradient(135deg,#34C759,#007AFF)}
-.hero-bg-write{background:linear-gradient(135deg,#AF52DE,#FF2D55)}
-.hero-bg-listen{background:linear-gradient(135deg,#5AC8FA,#34C759)}
-.hero-badge{font-size:11px;font-weight:600;opacity:.8;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.hero-title{font-size:22px;font-weight:700;margin-bottom:4px}
-.hero-sub{font-size:14px;opacity:.85}
-.hero-day{position:absolute;right:20px;top:50%;transform:translateY(-50%);text-align:center}
-.hero-day-num{font-size:42px;font-weight:700;line-height:1}
-.hero-day-lbl{font-size:11px;opacity:.7;margin-top:2px}
-/* Streak bar */
-.streak-row{margin:0 16px 12px;display:flex;gap:10px}
-.streak-chip{flex:1;background:var(--card);border-radius:14px;padding:12px 14px;display:flex;align-items:center;gap:10px}
-.streak-chip-ico{font-size:26px}
-.streak-chip-val{font-size:20px;font-weight:700}
-.streak-chip-lbl{font-size:11px;color:var(--text2)}
-/* Task cards */
-.task-card{background:var(--card);border-radius:16px;padding:14px 16px;margin:0 16px 10px;display:flex;align-items:center;gap:14px;cursor:pointer;transition:transform .15s}
-.task-card:active{transform:scale(.98)}
-.task-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
-.task-body{flex:1;min-width:0}
-.task-name{font-size:16px;font-weight:600;margin-bottom:3px}
-.task-desc{font-size:13px;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.task-check{width:28px;height:28px;border-radius:50%;border:2px solid var(--gray4);display:flex;align-items:center;justify-content:center;font-size:14px;flex-shrink:0;transition:all .2s}
-.task-check.done{background:var(--green);border-color:var(--green);color:#fff}
-/* Vocab cards */
-.vocab-scroll{display:flex;gap:10px;padding:0 16px 4px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
-.vocab-scroll::-webkit-scrollbar{display:none}
-.vcard{min-width:160px;background:var(--card);border-radius:16px;padding:14px;flex-shrink:0;cursor:pointer;transition:transform .15s}
-.vcard:active{transform:scale(.96)}
-.vcard-word{font-size:17px;font-weight:700;margin-bottom:2px}
-.vcard-pos{font-size:11px;color:var(--blue);font-weight:600;text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px}
-.vcard-def{font-size:12px;color:var(--text2);line-height:1.4}
-.vcard.learned{border:2px solid var(--green)}
-/* Skill tabs */
-.skill-tabs{display:flex;gap:8px;padding:0 16px 16px;overflow-x:auto;scrollbar-width:none}
-.skill-tabs::-webkit-scrollbar{display:none}
-.stab{padding:7px 16px;border-radius:20px;font-size:14px;font-weight:600;border:none;cursor:pointer;white-space:nowrap;transition:all .15s;font-family:inherit}
-.stab.active{background:var(--blue);color:#fff}
-.stab:not(.active){background:var(--card);color:var(--text2)}
-/* Progress rings */
-.rings-row{display:flex;justify-content:space-around;background:var(--card);border-radius:16px;margin:0 16px 16px;padding:16px}
-.ring-item{display:flex;flex-direction:column;align-items:center;gap:6px}
-.ring-wrap{position:relative;width:72px;height:72px}
-.ring-wrap svg{display:block;transform:rotate(-90deg)}
-.ring-track{fill:none;stroke:var(--gray5);stroke-width:7}
-.ring-fill{fill:none;stroke-width:7;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.34,1.56,.64,1)}
-.ring-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:14px;font-weight:700}
-.ring-label{font-size:11px;color:var(--text2);font-weight:500}
-/* Flash card */
-.flashcard{margin:16px;perspective:1000px;cursor:pointer}
-.flashcard-inner{position:relative;width:100%;height:220px;transform-style:preserve-3d;transition:transform .5s}
-.flashcard.flipped .flashcard-inner{transform:rotateY(180deg)}
-.flashcard-front,.flashcard-back{position:absolute;inset:0;border-radius:20px;backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center}
-.flashcard-front{background:linear-gradient(135deg,var(--blue),var(--indigo))}
-.flashcard-back{background:var(--card);transform:rotateY(180deg)}
-.fc-word{font-size:32px;font-weight:700;color:#fff;margin-bottom:8px}
-.fc-pos{font-size:13px;color:rgba(255,255,255,.7);font-weight:600;text-transform:uppercase;letter-spacing:.5px}
-.fc-hint{font-size:13px;color:rgba(255,255,255,.6);margin-top:12px}
-.fc-def{font-size:16px;font-weight:600;color:var(--text);margin-bottom:8px;line-height:1.4}
-.fc-example{font-size:13px;color:var(--text2);font-style:italic;line-height:1.5}
-.fc-syns{font-size:12px;color:var(--blue);margin-top:8px;font-weight:600}
-/* Flashcard nav */
-.fc-nav{display:flex;align-items:center;justify-content:center;gap:16px;margin:0 16px 16px}
-.fc-btn{width:52px;height:52px;border-radius:50%;border:none;font-size:22px;cursor:pointer;transition:transform .15s;font-family:inherit}
-.fc-btn:active{transform:scale(.9)}
-.fc-btn.wrong{background:#FF3B3020;color:var(--red)}
-.fc-btn.right{background:#34C75920;color:var(--green)}
-.fc-counter{font-size:15px;color:var(--text2);font-weight:600}
-/* Reading passage */
-.passage-box{background:var(--card);border-radius:16px;margin:0 16px 16px;padding:16px}
-.passage-title{font-size:17px;font-weight:700;margin-bottom:12px}
-.passage-text{font-size:15px;line-height:1.7;color:var(--text)}
-.passage-text p{margin-bottom:12px}
-.passage-text p:last-child{margin-bottom:0}
-/* Questions */
-.q-box{background:var(--card);border-radius:16px;margin:0 16px 10px;padding:16px}
-.q-num{font-size:12px;font-weight:700;color:var(--blue);margin-bottom:6px;text-transform:uppercase;letter-spacing:.4px}
-.q-text{font-size:15px;font-weight:600;margin-bottom:10px;line-height:1.4}
-.q-opts{display:flex;flex-direction:column;gap:8px}
-.q-opt{padding:10px 14px;border-radius:10px;border:1.5px solid var(--gray5);font-size:14px;cursor:pointer;transition:all .15s;background:transparent;text-align:left;font-family:inherit;color:var(--text)}
-.q-opt:active{transform:scale(.98)}
-.q-opt.selected{border-color:var(--blue);background:#007AFF12}
-.q-opt.correct{border-color:var(--green);background:#34C75912;color:var(--green)}
-.q-opt.wrong{border-color:var(--red);background:#FF3B3012;color:var(--red)}
-/* Writing */
-.prompt-box{background:linear-gradient(135deg,#AF52DE,#FF2D55);border-radius:16px;margin:0 16px 16px;padding:20px;color:#fff}
-.prompt-type{font-size:11px;font-weight:700;opacity:.75;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px}
-.prompt-text{font-size:15px;font-weight:600;line-height:1.5}
-.writing-area{margin:0 16px 16px;background:var(--card);border-radius:16px;overflow:hidden}
-.writing-toolbar{display:flex;align-items:center;justify-content:space-between;padding:10px 14px;border-bottom:.5px solid var(--sep)}
-.wc-label{font-size:13px;color:var(--text2)}
-.wc-count{font-size:13px;font-weight:600;color:var(--blue)}
-.writing-input{width:100%;min-height:200px;border:none;outline:none;font-size:15px;font-family:inherit;padding:14px 16px;resize:none;background:transparent;color:var(--text);line-height:1.7}
-.writing-tips{background:var(--card);border-radius:16px;margin:0 16px 16px;padding:16px}
-.tips-title{font-size:15px;font-weight:700;margin-bottom:10px}
-.tip-row{display:flex;align-items:flex-start;gap:10px;margin-bottom:8px}
-.tip-row:last-child{margin-bottom:0}
-.tip-ico{font-size:16px;flex-shrink:0;margin-top:1px}
-.tip-text{font-size:13px;color:var(--text2);line-height:1.5}
-/* Speaking */
-.cue-card{background:linear-gradient(135deg,#FF9F0A,#FF2D55);border-radius:16px;margin:0 16px 16px;padding:20px;color:#fff}
-.cue-title{font-size:18px;font-weight:700;margin-bottom:12px}
-.cue-items{margin-bottom:12px}
-.cue-item{font-size:14px;margin-bottom:6px;opacity:.9}
-.cue-note{font-size:12px;opacity:.7;font-style:italic}
-.speak-btn{width:80px;height:80px;border-radius:50%;border:none;font-size:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;transition:transform .15s}
-.speak-btn:active{transform:scale(.9)}
-.speak-btn.idle{background:var(--blue);box-shadow:0 4px 20px rgba(0,122,255,.4)}
-.speak-btn.recording{background:var(--red);box-shadow:0 4px 20px rgba(255,59,48,.5);animation:pulse 1s infinite}
-@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.06)}}
-.speak-label{text-align:center;font-size:13px;color:var(--text2);margin-bottom:16px}
-/* Listening */
-.listen-player{background:linear-gradient(135deg,#5AC8FA,#007AFF);border-radius:16px;margin:0 16px 16px;padding:20px;color:#fff}
-.listen-title{font-size:16px;font-weight:700;margin-bottom:16px}
-.play-btn{width:64px;height:64px;border-radius:50%;background:rgba(255,255,255,.25);border:none;font-size:28px;color:#fff;cursor:pointer;margin:0 auto 12px;display:flex;align-items:center;justify-content:center}
-.play-btn:active{opacity:.7}
-.listen-progress{height:4px;background:rgba(255,255,255,.3);border-radius:2px;overflow:hidden;margin:0 4px 8px}
-.listen-fill{height:100%;background:#fff;border-radius:2px;width:0%;transition:width .3s}
-.listen-time{display:flex;justify-content:space-between;font-size:11px;opacity:.7}
-.transcript-box{background:var(--card);border-radius:16px;margin:0 16px 16px;padding:16px}
-.transcript-title{font-size:15px;font-weight:700;margin-bottom:10px}
-.transcript-text{font-size:14px;line-height:1.7;color:var(--text2)}
-/* Progress */
-.band-card{background:linear-gradient(135deg,#007AFF,#5856D6);border-radius:20px;margin:0 16px 16px;padding:20px;color:#fff;display:flex;align-items:center;gap:16px}
-.band-num{font-size:56px;font-weight:700;line-height:1}
-.band-info{flex:1}
-.band-label{font-size:14px;opacity:.8;margin-bottom:4px}
-.band-range{font-size:20px;font-weight:700}
-.band-desc{font-size:12px;opacity:.7;margin-top:4px}
-.skill-progress-card{background:var(--card);border-radius:16px;margin:0 16px 10px;padding:14px 16px}
-.spc-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
-.spc-name{font-size:15px;font-weight:600}
-.spc-band{font-size:15px;font-weight:700;color:var(--blue)}
-.pbar{height:6px;background:var(--gray5);border-radius:3px;overflow:hidden}
-.pbar-fill{height:100%;border-radius:3px;transition:width .8s cubic-bezier(.34,1.56,.64,1)}
-.stat-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 16px 16px}
-.stat-card{background:var(--card);border-radius:14px;padding:14px}
-.stat-val{font-size:26px;font-weight:700;margin-bottom:2px}
-.stat-lbl{font-size:12px;color:var(--text2)}
-/* Calendar strip */
-.cal-strip{display:flex;gap:6px;padding:0 16px 16px;overflow-x:auto;scrollbar-width:none}
-.cal-strip::-webkit-scrollbar{display:none}
-.cal-day{min-width:40px;height:60px;border-radius:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;flex-shrink:0}
-.cal-day.empty-day{background:var(--gray5)}
-.cal-day.done-day{background:var(--green)}
-.cal-day.partial-day{background:var(--orange)}
-.cal-day.today-day{background:var(--blue)}
-.cal-day.future-day{background:var(--card);border:1.5px solid var(--sep)}
-.cal-day-num{font-size:14px;font-weight:700;color:#fff}
-.cal-day.future-day .cal-day-num{color:var(--text2)}
-.cal-day-lbl{font-size:9px;font-weight:600;color:rgba(255,255,255,.75);text-transform:uppercase}
-.cal-day.future-day .cal-day-lbl{color:var(--gray3)}
-/* Settings */
-.trow{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid var(--sep)}
-.trow:last-child{border-bottom:none}
-.trow-info{flex:1;margin-right:12px}
-.trow-name{font-size:16px}
-.trow-desc{font-size:13px;color:var(--text2);margin-top:1px}
-.toggle{width:51px;height:31px;background:var(--gray4);border-radius:16px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
-.toggle.on{background:var(--green)}
-.toggle-thumb{position:absolute;top:2px;left:2px;width:27px;height:27px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:left .2s cubic-bezier(.34,1.56,.64,1)}
-.toggle.on .toggle-thumb{left:22px}
-/* Overlay / Sheet */
-.overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
-.overlay.on{opacity:1;pointer-events:all}
-.sheet{position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(105%);width:100%;max-width:430px;background:var(--gray6);border-radius:20px 20px 0 0;z-index:201;transition:transform .38s cubic-bezier(.32,.72,0,1);max-height:94vh;overflow-y:auto;-webkit-overflow-scrolling:touch;padding-bottom:calc(16px + env(safe-area-inset-bottom))}
-.sheet.on{transform:translateX(-50%) translateY(0)}
-.sheet-handle{width:36px;height:4px;background:var(--gray4);border-radius:2px;margin:12px auto 0}
-.sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px}
-.sheet-t{font-size:17px;font-weight:600}
-.sbtn{font-size:17px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;padding:4px 0;min-width:56px}
-.sbtn.cancel{font-weight:400;color:var(--text2)}
-/* Action btn */
-.action-btn{display:block;width:calc(100% - 32px);margin:0 16px 12px;padding:15px;border:none;border-radius:14px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;text-align:center;transition:opacity .15s}
-.action-btn:active{opacity:.75}
-.action-btn.primary{background:var(--blue);color:#fff}
-.action-btn.success{background:var(--green);color:#fff}
-.action-btn.secondary{background:var(--gray5);color:var(--text)}
-/* Badge */
-.badge{display:inline-flex;align-items:center;padding:3px 8px;border-radius:10px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
-.badge-blue{background:#007AFF20;color:var(--blue)}
-.badge-green{background:#34C75920;color:var(--green)}
-.badge-orange{background:#FF9F0A20;color:var(--orange)}
-.badge-purple{background:#AF52DE20;color:var(--purple)}
-/* Toast */
-.toast{position:fixed;top:calc(env(safe-area-inset-top)+20px);left:50%;transform:translateX(-50%) translateY(-80px);background:rgba(50,50,50,.92);color:#fff;padding:10px 20px;border-radius:24px;font-size:14px;font-weight:600;z-index:999;transition:transform .35s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;backdrop-filter:blur(10px)}
-.toast.show{transform:translateX(-50%) translateY(0)}
-/* Notif banner */
-.notif-banner{margin:0 16px 14px;background:var(--card);border-radius:16px;padding:14px 16px;display:flex;align-items:center;gap:12px}
-.notif-ico{font-size:28px;flex-shrink:0}
-.notif-body{flex:1}
-.notif-t{font-size:14px;font-weight:600;margin-bottom:2px}
-.notif-s{font-size:12px;color:var(--text2)}
-.notif-close{font-size:18px;color:var(--gray3);background:none;border:none;cursor:pointer;padding:4px}
-/* Animations */
-@keyframes fadein{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
-.fadein{animation:fadein .3s ease both}
-/* Dark mode */
-@media(prefers-color-scheme:dark){
-  :root{--gray6:#000;--gray5:#2C2C2E;--gray4:#3A3A3C;--gray3:#48484A;--gray2:#636366;--card:#1C1C1E;--text:#FFF;--text2:rgba(235,235,245,.6);--sep:rgba(84,84,88,.65)}
-  #tab-bar{background:rgba(28,28,30,.94)}
-  .stab:not(.active){background:#2C2C2E}
-  input,textarea{color-scheme:dark}
-}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Привычки">
+  <meta name="theme-color" content="#F2F2F7" media="(prefers-color-scheme: light)">
+  <meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
+  <title>Привычки</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+    :root{
+      --blue:#007AFF;--green:#34C759;--orange:#FF9F0A;--red:#FF3B30;
+      --purple:#AF52DE;--pink:#FF2D55;--teal:#5AC8FA;--yellow:#FFD60A;
+      --gray:#8E8E93;--gray2:#AEAEB2;--gray3:#C7C7CC;--gray4:#D1D1D6;
+      --gray5:#E5E5EA;--gray6:#F2F2F7;
+      --card:#FFFFFF;--text:#000000;--text2:rgba(60,60,67,.6);
+      --sep:rgba(60,60,67,.12);
+    }
+    html,body{height:100%;font-family:-apple-system,'SF Pro Display',system-ui,sans-serif;background:var(--gray6);color:var(--text);overflow:hidden}
+    #app{height:100%;display:flex;flex-direction:column;max-width:430px;margin:0 auto;position:relative}
+
+    /* SCREENS */
+    .screen{flex:1;overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;padding-bottom:calc(83px + env(safe-area-inset-bottom));display:none}
+    .screen.active{display:block}
+
+    /* TAB BAR */
+    #tab-bar{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%);
+      width:100%;max-width:430px;
+      height:calc(49px + env(safe-area-inset-bottom));
+      padding-bottom:env(safe-area-inset-bottom);
+      background:rgba(249,249,249,.94);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+      border-top:.5px solid var(--sep);display:flex;align-items:flex-start;justify-content:space-around;z-index:100;
+    }
+    .tab-item{flex:1;height:49px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;user-select:none}
+    .tab-icon{font-size:22px;line-height:1;transition:transform .1s}
+    .tab-label{font-size:10px;font-weight:500;color:var(--gray);transition:color .2s}
+    .tab-item.active .tab-label{color:var(--blue)}
+    .tab-item:active .tab-icon{transform:scale(.85)}
+
+    /* HEADER */
+    .screen-header{padding:60px 20px 16px;background:var(--gray6)}
+    .screen-title{font-size:34px;font-weight:700;letter-spacing:.37px}
+    .screen-subtitle{font-size:15px;color:var(--text2);margin-top:2px}
+
+    /* STREAK */
+    .streak-card{
+      margin:0 16px 16px;
+      background:linear-gradient(135deg,#FF9F0A,#FF6B00);
+      border-radius:18px;padding:16px 20px;
+      display:flex;align-items:center;gap:16px;color:#fff;
+    }
+    .streak-icon{font-size:38px}
+    .streak-number{font-size:36px;font-weight:700}
+    .streak-label{font-size:13px;opacity:.85;margin-top:2px}
+
+    /* RINGS */
+    .rings-card{margin:0 16px 16px;background:var(--card);border-radius:18px;padding:20px;display:flex;justify-content:space-around}
+    .ring-item{display:flex;flex-direction:column;align-items:center;gap:8px}
+    .ring-wrap{position:relative;width:80px;height:80px}
+    .ring-wrap svg{display:block;transform:rotate(-90deg)}
+    .ring-track{fill:none;stroke:var(--gray5);stroke-width:8}
+    .ring-fill{fill:none;stroke-width:8;stroke-linecap:round;transition:stroke-dashoffset .8s cubic-bezier(.34,1.56,.64,1)}
+    .ring-pct{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);font-size:16px;font-weight:700}
+    .ring-label{font-size:12px;color:var(--text2);font-weight:500}
+
+    /* WEEK GRID */
+    .week-grid{margin:0 16px 16px;background:var(--card);border-radius:18px;padding:16px;display:flex;justify-content:space-between}
+    .wday{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1}
+    .wday-lbl{font-size:10px;font-weight:600;color:var(--gray);text-transform:uppercase}
+    .wday-num{font-size:13px;font-weight:500}
+    .wday.today .wday-num{color:var(--blue);font-weight:700}
+    .wday-dot{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px}
+    .wday-dot.done{background:#34C75918;color:var(--green)}
+    .wday-dot.partial{background:#FF9F0A18;color:var(--orange)}
+    .wday-dot.missed{color:var(--gray3)}
+    .wday-dot.cur{background:var(--blue);color:#fff;font-size:13px}
+
+    /* HABITS */
+    .habits-section{margin:0 16px 20px}
+    .habits-hdr{display:flex;align-items:center;justify-content:space-between;padding:0 4px 10px}
+    .habits-hdr-title{font-size:22px;font-weight:700}
+    .habits-hdr-count{font-size:15px;color:var(--text2)}
+    .hcard{
+      background:var(--card);border-radius:16px;padding:14px 14px;margin-bottom:10px;
+      display:flex;align-items:center;gap:12px;cursor:pointer;
+      transition:transform .15s;-webkit-user-select:none;
+    }
+    .hcard:active{transform:scale(.98)}
+    .hcard-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0}
+    .hcard-body{flex:1;min-width:0}
+    .hcard-name{font-size:16px;font-weight:600;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .pbar{height:4px;background:var(--gray5);border-radius:2px;overflow:hidden;margin-bottom:4px}
+    .pbar-fill{height:100%;border-radius:2px;transition:width .5s}
+    .hcard-meta{font-size:12px;color:var(--text2)}
+    .check-btn{
+      width:34px;height:34px;border-radius:50%;border:2.5px solid var(--gray4);
+      background:transparent;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;flex-shrink:0;font-size:17px;
+      transition:all .2s cubic-bezier(.34,1.56,.64,1);
+    }
+    .check-btn.done{border-color:transparent;background:var(--green);color:#fff}
+
+    /* FAB */
+    #fab{
+      position:fixed;bottom:calc(65px + env(safe-area-inset-bottom));right:20px;
+      width:56px;height:56px;border-radius:50%;background:var(--blue);
+      color:#fff;font-size:30px;border:none;display:flex;align-items:center;justify-content:center;
+      cursor:pointer;box-shadow:0 4px 20px rgba(0,122,255,.45);
+      transition:transform .15s cubic-bezier(.34,1.56,.64,1);z-index:99;
+    }
+    #fab:active{transform:scale(.9)}
+
+    /* EMPTY STATE */
+    .empty{text-align:center;padding:48px 24px}
+    .empty-ico{font-size:64px;margin-bottom:16px}
+    .empty-t{font-size:20px;font-weight:600;margin-bottom:8px}
+    .empty-s{font-size:15px;color:var(--text2)}
+
+    /* MODAL OVERLAY + SHEET */
+    .overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:200;opacity:0;transition:opacity .3s;pointer-events:none}
+    .overlay.on{opacity:1;pointer-events:all}
+    .sheet{
+      position:fixed;bottom:0;left:50%;transform:translateX(-50%) translateY(105%);
+      width:100%;max-width:430px;background:var(--gray6);border-radius:20px 20px 0 0;
+      z-index:201;transition:transform .38s cubic-bezier(.32,.72,0,1);
+      max-height:92vh;overflow-y:auto;-webkit-overflow-scrolling:touch;
+      padding-bottom:calc(16px + env(safe-area-inset-bottom));
+    }
+    .sheet.on{transform:translateX(-50%) translateY(0)}
+    .sheet-handle{width:36px;height:4px;background:var(--gray4);border-radius:2px;margin:12px auto 0}
+    .sheet-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px 8px}
+    .sheet-t{font-size:17px;font-weight:600}
+    .sbtn{font-size:17px;font-weight:600;color:var(--blue);background:none;border:none;cursor:pointer;padding:4px 0;min-width:56px}
+    .sbtn.cancel{font-weight:400;color:var(--text2)}
+    .sbtn:active{opacity:.6}
+
+    /* FORM */
+    .fsec{background:var(--card);border-radius:14px;margin:0 16px 14px;overflow:hidden}
+    .frow{display:flex;align-items:center;padding:12px 16px;border-bottom:.5px solid var(--sep);gap:12px}
+    .frow:last-child{border-bottom:none}
+    .flbl{font-size:15px;color:var(--text2);min-width:76px}
+    .finput{flex:1;border:none;outline:none;font-size:15px;font-family:inherit;text-align:right;background:transparent;color:var(--text)}
+    .finput::placeholder{color:var(--gray3)}
+    .slbl{font-size:13px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:0 20px 8px;margin-top:4px}
+
+    /* EMOJI GRID */
+    .emoji-grid{display:grid;grid-template-columns:repeat(8,1fr);gap:6px;background:var(--card);border-radius:14px;padding:12px;margin:0 16px 14px}
+    .ebtn{aspect-ratio:1;border:none;background:transparent;border-radius:8px;font-size:22px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:transform .1s}
+    .ebtn:active{transform:scale(.82)}
+    .ebtn.sel{background:var(--gray5)}
+
+    /* COLOR PICKER */
+    .color-row{display:flex;gap:12px;padding:12px 0;flex-wrap:wrap}
+    .cbtn{width:30px;height:30px;border-radius:50%;border:3px solid transparent;cursor:pointer;transition:transform .15s;flex-shrink:0}
+    .cbtn.sel{border-color:#000;transform:scale(1.15)}
+
+    /* GOAL SLIDER */
+    .goal-val{font-size:15px;font-weight:600;color:var(--blue);min-width:64px;text-align:right}
+    input[type=range]{flex:1;-webkit-appearance:none;height:4px;background:var(--gray5);border-radius:2px;outline:none}
+    input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:22px;height:22px;border-radius:50%;background:var(--blue);box-shadow:0 2px 6px rgba(0,0,0,.22)}
+
+    /* PROGRESS SCREEN */
+    .stats-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin:0 16px 16px}
+    .scard{background:var(--card);border-radius:16px;padding:16px}
+    .scard-val{font-size:28px;font-weight:700;margin-bottom:4px}
+    .scard-lbl{font-size:13px;color:var(--text2)}
+
+    .bar-chart{margin:0 16px 16px;background:var(--card);border-radius:16px;padding:16px}
+    .bc-title{font-size:15px;font-weight:600;margin-bottom:14px}
+    .bars{display:flex;align-items:flex-end;gap:8px;height:80px}
+    .bcol{flex:1;display:flex;flex-direction:column;align-items:center;gap:5px;height:100%;justify-content:flex-end}
+    .bbar{width:100%;border-radius:6px 6px 0 0;min-height:0;transition:height .5s}
+    .bday{font-size:11px;font-weight:500;color:var(--gray)}
+
+    .phcard{background:var(--card);border-radius:16px;padding:14px 16px;margin:0 16px 10px;cursor:pointer}
+    .phcard:active{opacity:.8}
+    .phcard-hdr{display:flex;align-items:center;gap:12px;margin-bottom:10px}
+    .phcard-info{flex:1}
+    .phcard-name{font-size:15px;font-weight:600}
+    .phcard-sub{font-size:13px;color:var(--text2);margin-top:2px}
+    .phcard-pct{font-size:17px;font-weight:700}
+
+    /* DETAIL SHEET */
+    .detail-hero{display:flex;flex-direction:column;align-items:center;padding:20px 20px 4px;gap:6px}
+    .d-icon{width:80px;height:80px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:44px}
+    .d-name{font-size:22px;font-weight:700;text-align:center}
+    .d-streak{font-size:14px;color:var(--text2)}
+    .d-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:14px 16px}
+    .dstat{background:var(--card);border-radius:12px;padding:12px;text-align:center}
+    .dstat-v{font-size:22px;font-weight:700}
+    .dstat-l{font-size:11px;color:var(--text2);margin-top:2px}
+
+    /* MILESTONES */
+    .mstone{margin:0 16px 14px;background:var(--card);border-radius:16px;padding:16px}
+    .mstone-t{font-size:15px;font-weight:600;margin-bottom:20px}
+    .mtrack{position:relative;height:6px;background:var(--gray5);border-radius:3px;margin-bottom:28px}
+    .mfill{position:absolute;left:0;top:0;height:100%;border-radius:3px;transition:width .6s}
+    .mmark{position:absolute;top:50%;transform:translate(-50%,-50%);width:14px;height:14px;border-radius:50%;border:2px solid var(--card)}
+    .mlbl{position:absolute;top:12px;transform:translateX(-50%);font-size:10px;white-space:nowrap}
+
+    /* CALENDAR */
+    .calgrid-wrap{margin:0 16px 14px;background:var(--card);border-radius:16px;padding:16px}
+    .cal-t{font-size:15px;font-weight:600;margin-bottom:10px}
+    .calgrid{display:grid;grid-template-columns:repeat(7,1fr);gap:5px}
+    .cal-dlbl{font-size:10px;font-weight:600;color:var(--gray);text-align:center;padding-bottom:3px}
+    .cal-cell{aspect-ratio:1;border-radius:7px;display:flex;align-items:center;justify-content:center;font-size:12px;font-weight:500;color:var(--text2)}
+    .cal-cell.done{color:#fff}
+    .cal-cell.today{font-weight:700}
+    .cal-cell.empty{visibility:hidden}
+
+    /* TOGGLES */
+    .trow{display:flex;align-items:center;justify-content:space-between;padding:12px 16px;border-bottom:.5px solid var(--sep)}
+    .trow:last-child{border-bottom:none}
+    .trow-info{flex:1;margin-right:12px}
+    .trow-name{font-size:16px}
+    .trow-desc{font-size:13px;color:var(--text2);margin-top:1px}
+    .toggle{width:51px;height:31px;background:var(--gray4);border-radius:16px;position:relative;cursor:pointer;transition:background .2s;flex-shrink:0}
+    .toggle.on{background:var(--green)}
+    .toggle-thumb{position:absolute;top:2px;left:2px;width:27px;height:27px;background:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,.2);transition:left .2s cubic-bezier(.34,1.56,.64,1)}
+    .toggle.on .toggle-thumb{left:22px}
+
+    /* SETTINGS */
+    .sg{margin:0 16px 20px}
+    .sg-lbl{font-size:13px;font-weight:600;color:var(--gray);text-transform:uppercase;letter-spacing:.4px;padding:0 4px 8px}
+    .sg-card{background:var(--card);border-radius:16px;overflow:hidden}
+
+    /* DANGER */
+    .btn-danger{width:calc(100% - 32px);margin:4px 16px 20px;padding:14px;background:#FF3B3015;color:var(--red);border:none;border-radius:12px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit}
+    .btn-danger:active{opacity:.7}
+
+    /* QUICK GOAL PRESETS */
+    .presets{display:flex;flex-wrap:wrap;gap:8px;padding:10px 16px 14px}
+    .preset-btn{padding:6px 14px;border-radius:20px;border:1.5px solid var(--gray5);background:transparent;color:var(--text);font-size:14px;font-weight:500;font-family:inherit;cursor:pointer;transition:all .15s}
+    .preset-btn.sel{border-color:var(--blue);background:#007AFF15;color:var(--blue)}
+    .preset-btn:active{transform:scale(.94)}
+
+    @keyframes popin{0%{transform:scale(.5)}70%{transform:scale(1.25)}100%{transform:scale(1)}}
+    .popin{animation:popin .28s cubic-bezier(.34,1.56,.64,1)}
+    @keyframes fadein{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+    .fadein{animation:fadein .3s ease both}
+    @keyframes confetti-fall{0%{transform:translateY(0) rotate(0deg);opacity:1}100%{transform:translateY(110vh) rotate(720deg);opacity:0}}
+    @keyframes toastin{from{opacity:0;transform:translateX(-50%) translateY(10px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}
+
+    /* APPLE POLISH */
+    html,body{-webkit-font-smoothing:antialiased;overscroll-behavior:none}
+    .screen-header{padding:calc(env(safe-area-inset-top) + 16px) 20px 16px}
+
+    /* DARK MODE */
+    @media(prefers-color-scheme:dark){
+      :root{
+        --gray6:#000000;--gray5:#2C2C2E;--gray4:#3A3A3C;
+        --gray3:#48484A;--gray2:#636366;
+        --card:#1C1C1E;--text:#FFFFFF;
+        --text2:rgba(235,235,245,.6);--sep:rgba(84,84,88,.65);
+      }
+      #tab-bar{background:rgba(28,28,30,.94)}
+      .cbtn.sel{border-color:#fff}
+      .streak-card{background:linear-gradient(135deg,#FF9500,#FF6B00)}
+      input[type=range]{background:var(--gray5)}
+    }
+  </style>
 </head>
 <body>
 <div id="app">
-  <div id="screen-today"   class="screen active"><div id="today-c"></div></div>
-  <div id="screen-skills"  class="screen"><div id="skills-c"></div></div>
-  <div id="screen-vocab"   class="screen"><div id="vocab-c"></div></div>
-  <div id="screen-progress"class="screen"><div id="progress-c"></div></div>
-  <div id="screen-settings"class="screen"><div id="settings-c"></div></div>
+  <div id="screen-today" class="screen active"><div id="today-c"></div></div>
+  <div id="screen-progress" class="screen"><div id="progress-c"></div></div>
+  <div id="screen-settings" class="screen"><div id="settings-c"></div></div>
+
+  <button id="fab" onclick="openAdd()">+</button>
+
   <nav id="tab-bar">
-    <div class="tab-item active" id="tab-today"    onclick="goTab('today')">    <span class="tab-icon">📅</span><span class="tab-label">Today</span></div>
-    <div class="tab-item"        id="tab-skills"   onclick="goTab('skills')">   <span class="tab-icon">📖</span><span class="tab-label">Skills</span></div>
-    <div class="tab-item"        id="tab-vocab"    onclick="goTab('vocab')">    <span class="tab-icon">📝</span><span class="tab-label">Vocab</span></div>
-    <div class="tab-item"        id="tab-progress" onclick="goTab('progress')"> <span class="tab-icon">📊</span><span class="tab-label">Progress</span></div>
-    <div class="tab-item"        id="tab-settings" onclick="goTab('settings')"> <span class="tab-icon">⚙️</span><span class="tab-label">Settings</span></div>
+    <div class="tab-item active" id="tab-today" onclick="goTab('today')">
+      <span class="tab-icon">☀️</span><span class="tab-label">Сегодня</span>
+    </div>
+    <div class="tab-item" id="tab-progress" onclick="goTab('progress')">
+      <span class="tab-icon">📊</span><span class="tab-label">Прогресс</span>
+    </div>
+    <div class="tab-item" id="tab-settings" onclick="goTab('settings')">
+      <span class="tab-icon">⚙️</span><span class="tab-label">Настройки</span>
+    </div>
   </nav>
-  <div class="overlay" id="ov"></div>
-  <div class="sheet" id="sh"><div class="sheet-handle"></div><div class="sheet-hdr"><button class="sbtn cancel" onclick="closeSh()">Close</button><span class="sheet-t" id="sh-t"></span><span style="min-width:56px"></span></div><div id="sh-c"></div></div>
-  <div id="toast" class="toast"></div>
+
+  <!-- DETAIL SHEET -->
+  <div class="overlay" id="det-ov" onclick="closeDet()"></div>
+  <div class="sheet" id="det-sh">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <button class="sbtn cancel" onclick="closeDet()">Закрыть</button>
+      <span class="sheet-t"></span>
+      <button class="sbtn" onclick="openEdit(detailId)">Изменить</button>
+    </div>
+    <div id="det-c"></div>
+  </div>
+
+  <!-- ADD/EDIT SHEET -->
+  <div class="overlay" id="add-ov" onclick="closeAdd()"></div>
+  <div class="sheet" id="add-sh">
+    <div class="sheet-handle"></div>
+    <div class="sheet-hdr">
+      <button class="sbtn cancel" onclick="closeAdd()">Отмена</button>
+      <span class="sheet-t" id="add-sh-t">Новая привычка</span>
+      <button class="sbtn" onclick="saveHabit()">Сохранить</button>
+    </div>
+    <div id="add-c"></div>
+  </div>
 </div>
+
 <script>
-// ═══════════════════════════════════════════════════════
-// CONTENT DATABASE
-// ═══════════════════════════════════════════════════════
-const VOCAB_BANK = [
-// ENVIRONMENT (Day 1-3)
-{w:'mitigate',pos:'verb',def:'To make less severe or serious',ex:'Planting trees can mitigate the effects of urban heat islands.',syns:'alleviate, reduce, lessen'},
-{w:'deteriorate',pos:'verb',def:'To become progressively worse',ex:'Air quality continues to deteriorate in rapidly industrialising cities.',syns:'decline, worsen, degrade'},
-{w:'sustainable',pos:'adjective',def:'Able to be maintained without depleting natural resources',ex:'Sustainable agriculture requires careful management of soil and water.',syns:'eco-friendly, renewable, viable'},
-{w:'biodiversity',pos:'noun',def:'The variety of plant and animal life in a particular habitat',ex:'Deforestation is one of the greatest threats to biodiversity.',syns:'species richness, ecological variety'},
-{w:'exacerbate',pos:'verb',def:'To make a problem or bad situation worse',ex:'Pollution exacerbates respiratory conditions in vulnerable populations.',syns:'worsen, aggravate, intensify'},
-{w:'unprecedented',pos:'adjective',def:'Never done or known before',ex:'Scientists are recording unprecedented temperatures across the globe.',syns:'unparalleled, extraordinary, novel'},
-{w:'resilience',pos:'noun',def:'The capacity to recover quickly from difficulties',ex:'Coastal communities must build resilience against rising sea levels.',syns:'toughness, adaptability, robustness'},
-{w:'devastate',pos:'verb',def:'To destroy or ruin something completely',ex:'The wildfire devastated thousands of hectares of old-growth forest.',syns:'destroy, ravage, wreck'},
-{w:'repercussion',pos:'noun',def:'An unintended consequence of an action or event',ex:'Overfishing has had serious repercussions for marine ecosystems.',syns:'consequence, impact, aftermath'},
-{w:'pristine',pos:'adjective',def:'In its original condition; unspoiled',ex:'Few pristine wilderness areas remain untouched by human activity.',syns:'unspoiled, pure, immaculate'},
-// TECHNOLOGY (Day 4-6)
-{w:'proliferate',pos:'verb',def:'To increase rapidly in number',ex:'Smartphones have proliferated to the point of near-universal adoption.',syns:'multiply, expand, spread'},
-{w:'automation',pos:'noun',def:'The use of technology to perform tasks without human assistance',ex:'Automation threatens to displace millions of manufacturing workers.',syns:'mechanisation, digitalisation, robotics'},
-{w:'disruptive',pos:'adjective',def:'Causing radical change to an established industry or system',ex:'The internet was a disruptive technology that transformed commerce.',syns:'revolutionary, ground-breaking, transformative'},
-{w:'algorithm',pos:'noun',def:'A set of rules for solving a problem or making decisions',ex:'Social media algorithms curate content based on user behaviour.',syns:'formula, procedure, protocol'},
-{w:'surveillance',pos:'noun',def:'Close observation, especially of a suspected spy or criminal',ex:'Mass surveillance raises profound concerns about privacy and civil liberties.',syns:'monitoring, observation, oversight'},
-{w:'obsolete',pos:'adjective',def:'No longer produced or used; out of date',ex:'Rapid technological change can render skills obsolete within a decade.',syns:'outdated, redundant, archaic'},
-{w:'pervasive',pos:'adjective',def:'Spreading widely throughout an area or a group of people',ex:'The pervasive influence of digital media affects all aspects of modern life.',syns:'ubiquitous, omnipresent, widespread'},
-{w:'augment',pos:'verb',def:'To make something greater by adding to it',ex:'Augmented reality technology can augment physical experiences with digital data.',syns:'enhance, supplement, boost'},
-{w:'convergence',pos:'noun',def:'The process of coming together or uniting',ex:'The convergence of AI and biotechnology is creating new medical possibilities.',syns:'merging, fusion, unification'},
-{w:'paradigm',pos:'noun',def:'A typical example or pattern; a model',ex:'The digital revolution represents a paradigm shift in how we communicate.',syns:'model, framework, standard'},
-// EDUCATION (Day 7-9)
-{w:'curriculum',pos:'noun',def:'The subjects comprising a course of study',ex:'The national curriculum must be updated to reflect 21st-century skills.',syns:'syllabus, programme, course'},
-{w:'pedagogy',pos:'noun',def:'The method and practice of teaching',ex:'Progressive pedagogy emphasises student-centred learning approaches.',syns:'teaching method, instruction, didactics'},
-{w:'proliferate',pos:'verb',def:'To increase rapidly in number or amount',ex:'Online learning platforms have proliferated since the pandemic.',syns:'multiply, expand, grow'},
-{w:'nurture',pos:'verb',def:'To care for and encourage the development of',ex:'Good schools nurture critical thinking alongside academic knowledge.',syns:'foster, cultivate, develop'},
-{w:'disparity',pos:'noun',def:'A great difference or inequality',ex:'Educational disparities between wealthy and deprived areas remain stark.',syns:'inequality, gap, imbalance'},
-{w:'autonomous',pos:'adjective',def:'Having the freedom to govern itself or take independent action',ex:'Autonomous learners take responsibility for managing their own progress.',syns:'independent, self-governing, self-directed'},
-{w:'rigorous',pos:'adjective',def:'Extremely thorough and careful',ex:'A rigorous academic programme prepares students for university demands.',syns:'thorough, demanding, exacting'},
-{w:'literacy',pos:'noun',def:'Competence or knowledge in a specified area',ex:'Digital literacy is now considered as important as reading and writing.',syns:'proficiency, competence, fluency'},
-{w:'critical thinking',pos:'noun',def:'Objective analysis and evaluation of an issue',ex:'Universities prize critical thinking above rote memorisation.',syns:'analytical thought, reasoning, evaluation'},
-{w:'vocation',pos:'noun',def:'A strong feeling of suitability for a particular career',ex:'Teaching is often described as a vocation rather than merely a job.',syns:'calling, career, profession'},
-// HEALTH (Day 10-12)
-{w:'chronic',pos:'adjective',def:'Persisting for a long time or constantly recurring',ex:'Chronic stress is linked to cardiovascular disease and reduced immunity.',syns:'persistent, long-term, prolonged'},
-{w:'prevalence',pos:'noun',def:'The fact or condition of being widespread',ex:'The prevalence of obesity has increased dramatically in developed nations.',syns:'frequency, incidence, commonness'},
-{w:'placebo',pos:'noun',def:'A treatment with no therapeutic effect used as a control',ex:'The placebo effect demonstrates the power of the mind over the body.',syns:'dummy treatment, sugar pill'},
-{w:'holistic',pos:'adjective',def:'Treating the whole person, not just symptoms',ex:'Holistic medicine considers physical, mental, and social wellbeing.',syns:'comprehensive, whole-person, integrated'},
-{w:'sedentary',pos:'adjective',def:'Tending to spend much time seated; inactive',ex:'Sedentary lifestyles are a major contributor to rising obesity rates.',syns:'inactive, stationary, desk-bound'},
-{w:'prognosis',pos:'noun',def:'The likely course of a medical condition',ex:'Early detection significantly improves the prognosis for most cancers.',syns:'forecast, outlook, prediction'},
-{w:'pandemic',pos:'noun',def:'A disease prevalent over a whole country or the world',ex:'The COVID-19 pandemic revealed critical gaps in global health preparedness.',syns:'epidemic, outbreak, contagion'},
-{w:'intervention',pos:'noun',def:'Action taken to improve a situation',ex:'Early educational interventions can prevent long-term developmental issues.',syns:'measure, step, action'},
-{w:'stigma',pos:'noun',def:'A mark of disgrace associated with a circumstance',ex:'Mental health stigma prevents many people from seeking professional help.',syns:'shame, disgrace, prejudice'},
-{w:'correlate',pos:'verb',def:'To have a mutual relationship or connection',ex:'Physical activity levels strongly correlate with mental health outcomes.',syns:'relate to, correspond to, connect'},
-// SOCIETY (Day 13-15)
-{w:'demographic',pos:'noun',def:'A particular sector of a population',ex:'Ageing demographics pose significant challenges for pension systems.',syns:'population group, segment, cohort'},
-{w:'cohesion',pos:'noun',def:'The action or fact of forming a united whole',ex:'Social cohesion is strengthened by shared cultural values and experiences.',syns:'unity, solidarity, togetherness'},
-{w:'marginalise',pos:'verb',def:'To treat as insignificant or peripheral',ex:'Minority groups are often marginalised in mainstream political discourse.',syns:'exclude, sideline, disenfranchise'},
-{w:'egalitarian',pos:'adjective',def:'Believing in or based on equal rights for all',ex:'An egalitarian society provides equal opportunities regardless of background.',syns:'equal, fair, democratic'},
-{w:'polarisation',pos:'noun',def:'Division into two sharply contrasting groups',ex:'Political polarisation has made constructive dialogue increasingly difficult.',syns:'division, fragmentation, bifurcation'},
-{w:'assimilation',pos:'noun',def:'The process of becoming absorbed into a larger group',ex:'Cultural assimilation can lead to the loss of minority languages.',syns:'integration, absorption, incorporation'},
-{w:'philanthropic',pos:'adjective',def:'Seeking to promote the welfare of others',ex:'Philanthropic foundations fund research that governments cannot afford.',syns:'charitable, altruistic, benevolent'},
-{w:'meritocracy',pos:'noun',def:'A society in which advancement is based on ability',ex:'True meritocracy requires equal access to quality education for all.',syns:'fair system, ability-based advancement'},
-{w:'governance',pos:'noun',def:'The system by which something is controlled or regulated',ex:'Good governance requires transparency, accountability, and public participation.',syns:'administration, management, oversight'},
-{w:'equity',pos:'noun',def:'The quality of being fair and impartial',ex:'Equity in healthcare means ensuring all patients receive appropriate care.',syns:'fairness, justice, impartiality'},
-// ECONOMICS (Day 16-18)
-{w:'austerity',pos:'noun',def:'Difficult economic conditions with strict government spending cuts',ex:'Austerity measures reduced public services while unemployment soared.',syns:'frugality, belt-tightening, cutbacks'},
-{w:'commodity',pos:'noun',def:'A raw material or primary agricultural product',ex:'Oil remains the world\'s most politically significant commodity.',syns:'resource, product, good'},
-{w:'recession',pos:'noun',def:'A period of temporary economic decline',ex:'The 2008 recession led to widespread job losses and bank failures.',syns:'downturn, slump, contraction'},
-{w:'subsidy',pos:'noun',def:'A sum of money granted by the state to support an industry',ex:'Agricultural subsidies protect domestic farmers from global competition.',syns:'grant, funding, support'},
-{w:'inflation',pos:'noun',def:'A general increase in prices and fall in purchasing value of money',ex:'High inflation erodes the real value of wages and savings.',syns:'price rise, cost increase, devaluation'},
-{w:'disparity',pos:'noun',def:'A great difference, especially an unjust one',ex:'Income disparities between executives and workers have widened significantly.',syns:'inequality, gap, imbalance'},
-{w:'entrepreneur',pos:'noun',def:'A person who organises and operates a business',ex:'Serial entrepreneurs often cite failure as their greatest learning experience.',syns:'business person, innovator, founder'},
-{w:'monopoly',pos:'noun',def:'Exclusive possession or control of a market',ex:'Tech monopolies have raised concerns about fair competition and innovation.',syns:'dominance, control, oligopoly'},
-{w:'deregulation',pos:'noun',def:'Reduction or removal of regulations from an industry',ex:'Financial deregulation in the 1980s contributed to later banking crises.',syns:'liberalisation, privatisation, freeing-up'},
-{w:'fiscal',pos:'adjective',def:'Relating to government revenue, especially taxes',ex:'Fiscal policy tools include taxation and government spending decisions.',syns:'financial, budgetary, economic'},
-// URBAN (Day 19-21)
-{w:'gentrification',pos:'noun',def:'Renovation of a district causing displacement of lower-income residents',ex:'Gentrification is transforming formerly industrial neighbourhoods into luxury zones.',syns:'redevelopment, urban renewal, upscaling'},
-{w:'infrastructure',pos:'noun',def:'The basic physical systems of a nation or organisation',ex:'Crumbling infrastructure undermines economic growth and quality of life.',syns:'systems, facilities, framework'},
-{w:'congestion',pos:'noun',def:'The state of being overcrowded, especially with traffic',ex:'Traffic congestion costs urban economies billions in lost productivity annually.',syns:'gridlock, overcrowding, bottleneck'},
-{w:'rezoning',pos:'noun',def:'Changing the designated use of land by law',ex:'Rezoning agricultural land for housing is a controversial planning decision.',syns:'reclassification, redesignation, land-use change'},
-{w:'metropolitan',pos:'adjective',def:'Relating to a major city and its surrounding areas',ex:'Metropolitan areas attract talent but generate significant inequality.',syns:'urban, civic, city-wide'},
-{w:'commute',pos:'noun',def:'A regular journey between home and work',ex:'Long commutes are linked to higher stress and lower job satisfaction.',syns:'travel, journey, transit'},
-{w:'sprawl',pos:'noun',def:'Uncontrolled expansion of urban areas into rural land',ex:'Urban sprawl destroys green spaces and increases car dependency.',syns:'expansion, spread, growth'},
-{w:'density',pos:'noun',def:'The quantity of people per unit area',ex:'High-density housing reduces land use but can create social tensions.',syns:'concentration, compactness, population level'},
-{w:'zoning',pos:'noun',def:'Dividing land into areas with different permitted uses',ex:'Zoning laws separate residential, commercial, and industrial districts.',syns:'planning, land-use regulation, designation'},
-{w:'transit',pos:'noun',def:'The action of passing through a place',ex:'Investment in public transit reduces private car use and emissions.',syns:'transport, travel, movement'},
-// SCIENCE (Day 22-24)
-{w:'empirical',pos:'adjective',def:'Based on observation or experience rather than theory',ex:'Empirical evidence must form the basis of sound public health policy.',syns:'observed, experimental, evidence-based'},
-{w:'hypothesis',pos:'noun',def:'A proposed explanation made on limited evidence',ex:'The research team tested their hypothesis using a double-blind trial.',syns:'theory, proposal, assumption'},
-{w:'methodology',pos:'noun',def:'A system of methods used in a particular area of study',ex:'The study\'s methodology has been criticised for its small sample size.',syns:'approach, procedure, technique'},
-{w:'replicate',pos:'verb',def:'To repeat or copy an experiment or finding',ex:'Scientific findings gain credibility when independent researchers replicate them.',syns:'reproduce, copy, duplicate'},
-{w:'variable',pos:'noun',def:'An element that can be changed or controlled in an experiment',ex:'Researchers must control all variables except the one being studied.',syns:'factor, parameter, element'},
-{w:'innovative',pos:'adjective',def:'Featuring new methods; advanced and original',ex:'Innovative approaches to cancer treatment are extending patients\' lives.',syns:'novel, pioneering, creative'},
-{w:'breakthrough',pos:'noun',def:'A sudden important development',ex:'The discovery of penicillin was a breakthrough in modern medicine.',syns:'advance, discovery, revolution'},
-{w:'genome',pos:'noun',def:'The complete set of genes in an organism',ex:'Mapping the human genome has opened new possibilities in medicine.',syns:'genetic code, DNA sequence, gene map'},
-{w:'exponential',pos:'adjective',def:'Increasing more and more rapidly',ex:'Exponential growth in computing power follows Moore\'s Law.',syns:'rapid, accelerating, geometric'},
-{w:'quantum',pos:'adjective',def:'Relating to the discrete units of energy in quantum theory',ex:'Quantum computing could revolutionise data encryption and processing.',syns:'sub-atomic, quantum-level'},
-// ARTS & CULTURE (Day 25-27)
-{w:'aesthetic',pos:'adjective',def:'Concerned with beauty or the appreciation of beauty',ex:'The architect\'s aesthetic vision transformed the city\'s skyline.',syns:'artistic, visual, stylistic'},
-{w:'indigenous',pos:'adjective',def:'Originating or occurring naturally in a particular place',ex:'Indigenous art forms carry centuries of cultural knowledge and meaning.',syns:'native, aboriginal, local'},
-{w:'contemporary',pos:'adjective',def:'Belonging to or occurring in the present',ex:'Contemporary literature reflects the anxieties of a globalised world.',syns:'modern, current, present-day'},
-{w:'heritage',pos:'noun',def:'Property inherited from previous generations; cultural tradition',ex:'Cultural heritage sites attract millions of tourists and educate future generations.',syns:'tradition, legacy, inheritance'},
-{w:'censorship',pos:'noun',def:'Suppression of material considered objectionable',ex:'State censorship of the arts is incompatible with democratic values.',syns:'suppression, restriction, prohibition'},
-{w:'patronage',pos:'noun',def:'Support given by a patron, especially to artists',ex:'Without aristocratic patronage, many Renaissance masterpieces would not exist.',syns:'sponsorship, support, funding'},
-{w:'subversive',pos:'adjective',def:'Seeking to undermine the power of an established system',ex:'Subversive satire has always played a role in speaking truth to power.',syns:'rebellious, disruptive, radical'},
-{w:'profound',pos:'adjective',def:'Having or showing great knowledge or insight',ex:'The novel explores the profound impact of loss on human identity.',syns:'deep, significant, meaningful'},
-{w:'critique',pos:'noun',def:'A detailed analysis and assessment of something',ex:'The film received a withering critique from academic scholars.',syns:'analysis, assessment, appraisal'},
-{w:'narrative',pos:'noun',def:'A spoken or written account of connected events',ex:'Political leaders craft narratives to frame their policies favourably.',syns:'story, account, discourse'},
-// GLOBAL ISSUES (Day 28-30)
-{w:'geopolitical',pos:'adjective',def:'Relating to politics and geography, especially on a global scale',ex:'Geopolitical tensions between major powers affect global trade flows.',syns:'international, global, diplomatic'},
-{w:'refugee',pos:'noun',def:'A person forced to leave their country to escape war or disaster',ex:'The refugee crisis demands coordinated international humanitarian response.',syns:'asylum seeker, displaced person, exile'},
-{w:'sovereignty',pos:'noun',def:'Supreme power, especially of a state',ex:'Nations guard their sovereignty jealously in an era of globalisation.',syns:'autonomy, independence, self-rule'},
-{w:'sanctions',pos:'noun',def:'Official penalties imposed on a country to force compliance',ex:'Economic sanctions seek to change behaviour without military force.',syns:'penalties, restrictions, embargo'},
-{w:'multilateral',pos:'adjective',def:'Involving three or more parties',ex:'Climate change requires multilateral cooperation, not unilateral action.',syns:'international, multi-party, collaborative'},
-{w:'diplomatic',pos:'adjective',def:'Relating to managing international relations through negotiation',ex:'Diplomatic channels must be exhausted before any military action.',syns:'political, foreign-affairs, tactful'},
-{w:'remittance',pos:'noun',def:'Money sent abroad by a foreign worker to their home country',ex:'Remittances are a critical source of income for many developing economies.',syns:'transfer, payment, wire transfer'},
-{w:'hegemony',pos:'noun',def:'Leadership or dominance, especially of one country over others',ex:'American cultural hegemony has spread English globally.',syns:'dominance, supremacy, leadership'},
-{w:'diaspora',pos:'noun',def:'People who have spread from their original homeland',ex:'The Irish diaspora played a major role in shaping American politics.',syns:'emigrant community, overseas population'},
-{w:'globalisation',pos:'noun',def:'The process of interaction and integration among people worldwide',ex:'Globalisation has lifted billions from poverty but increased inequality.',syns:'internationalisation, global integration, interconnection'}
-];
-
-const READING_PASSAGES = [
-{
-  title:'The Future of Artificial Intelligence in the Workplace',
-  text:`<p>The integration of artificial intelligence into the modern workplace represents one of the most profound transformations in the history of human labour. Unlike previous waves of technological change, which primarily displaced manual workers, AI threatens to automate a broad spectrum of cognitive tasks — from data analysis and legal research to medical diagnosis and financial modelling.</p>
-<p>Proponents of AI adoption argue that technological disruption has historically created more jobs than it destroys. The Industrial Revolution, for instance, eliminated agricultural labourers but gave rise to an entirely new urban working class. Similarly, computers made typists redundant while spawning entire industries in software development and digital services. Optimists contend that AI will liberate workers from repetitive drudgery, enabling them to focus on distinctly human capabilities such as creativity, empathy, and complex judgment.</p>
-<p>However, critics counter that this time is fundamentally different. Previous technologies augmented human capability; today's AI increasingly replaces it. Machine learning algorithms can now outperform radiologists in detecting tumours, surpass lawyers in reviewing contracts, and exceed accountants in processing financial data. The pace of change may simply be too rapid for labour markets to adapt, leaving entire cohorts of workers permanently displaced without viable alternatives.</p>
-<p>The distributional consequences of AI adoption are equally concerning. Productivity gains tend to accrue disproportionately to capital owners and highly skilled workers, while low-to-middle-income employees bear the heaviest costs of automation. Without deliberate policy intervention — through retraining programmes, stronger social safety nets, or taxation of automated production — AI risks exacerbating already widening economic inequality.</p>
-<p>Ultimately, the impact of AI on work will be shaped not by technological determinism but by political choices. Societies must decide how to distribute the gains from automation equitably, how to invest in the education systems that prepare workers for a changing economy, and how to ensure that the transformative potential of AI serves the many rather than the few.</p>`,
-  questions:[
-    {q:'What is the main argument made by supporters of AI adoption?',opts:['AI will create more jobs in the long run','AI only affects manual workers','AI is developing too slowly','AI benefits only tech companies'],ans:0},
-    {q:'According to the passage, how is modern AI different from previous technologies?',opts:['It is cheaper to implement','It replaces cognitive tasks, not just manual ones','It only affects developing countries','It is less accurate than human workers'],ans:1},
-    {q:'What does the author suggest will determine the impact of AI on employment?',opts:['The speed of technological development','The preferences of tech companies','Political decisions and policy choices','The level of education in society'],ans:2},
-    {q:'Which of the following best describes the author\'s overall tone?',opts:['Entirely optimistic about AI benefits','Entirely pessimistic about job losses','Balanced, acknowledging both benefits and risks','Indifferent to the topic'],ans:2},
-    {q:'The word "exacerbating" in paragraph 4 is closest in meaning to:',opts:['reducing','solving','worsening','measuring'],ans:2}
-  ]
-},
-{
-  title:'Urban Green Spaces and Mental Health',
-  text:`<p>As cities expand and populations become increasingly urbanised, the provision of green space within metropolitan areas has emerged as a critical public health concern. Research consistently demonstrates that access to parks, gardens, and natural environments is associated with measurably improved mental health outcomes, including reduced rates of anxiety, depression, and stress-related conditions.</p>
-<p>The mechanisms underlying these benefits are diverse. Exposure to natural environments reduces physiological stress markers such as cortisol levels and blood pressure. The phenomenon known as "attention restoration theory" suggests that natural settings allow the brain to recover from the directed attention fatigue induced by demanding urban environments. Furthermore, green spaces encourage physical activity and social interaction — both independently linked to psychological wellbeing.</p>
-<p>Yet access to urban green space is profoundly unequal. Affluent neighbourhoods typically possess more parks, better maintained facilities, and safer environments for outdoor recreation. Disadvantaged communities, by contrast, frequently live in so-called "green space deserts," where residents must travel considerable distances to reach any meaningful natural environment. This disparity compounds existing health inequalities, as those most vulnerable to stress-related illness often have the least access to its natural antidotes.</p>
-<p>Urban planners and public health officials increasingly recognise the need to incorporate green infrastructure into city design. "Greening" initiatives range from pocket parks and street trees to urban forests and river corridors. Some cities have adopted bold green space equity targets, mandating that all residents live within a set distance of quality green space. London, for example, aims to become a National Park City — a designation intended to ensure that at least fifty percent of its area is green.</p>
-<p>The evidence base is compelling: investing in urban nature is not a luxury but a public health necessity. As mental health crises continue to escalate globally, the integration of green space into urban planning represents a cost-effective and evidence-backed intervention that benefits entire communities.</p>`,
-  questions:[
-    {q:'What is "attention restoration theory"?',opts:['A theory about directing attention in cities','The idea that nature helps the brain recover from mental fatigue','A planning framework for parks','A meditation technique used in urban settings'],ans:1},
-    {q:'Why are disadvantaged communities particularly affected by lack of green space?',opts:['They prefer indoor activities','They face both more stress and less access to natural environments','They have more parks but fewer maintained ones','They do not value outdoor recreation'],ans:1},
-    {q:'What has London committed to?',opts:['Building the largest park in Europe','Having 50% of its area as green space','Removing all car parks','Making all housing eco-friendly'],ans:1},
-    {q:'According to the passage, which is NOT mentioned as a benefit of green space?',opts:['Reduced cortisol levels','Lower blood pressure','Improved economic productivity','Increased social interaction'],ans:2},
-    {q:'The phrase "green space deserts" refers to:',opts:['Areas with no rainfall','Urban areas with very little access to nature','Deserts being converted into parks','Parks that have become dry and barren'],ans:1}
-  ]
-},
-{
-  title:'The Psychology of Procrastination',
-  text:`<p>Procrastination — the habitual delay of tasks despite knowing the costs of that delay — is one of the most studied yet poorly understood phenomena in psychology. Affecting an estimated twenty percent of adults chronically and up to ninety-five percent of students to some degree, it represents not a flaw of character but a complex failure of emotional regulation.</p>
-<p>Traditional explanations framed procrastination as a time-management problem: inefficient people who failed to prioritise effectively. Contemporary research tells a starkly different story. Procrastination is now understood primarily as a strategy for managing negative emotions — anxiety, self-doubt, boredom, and fear of failure — associated with a task. Avoidance provides immediate emotional relief, even at the cost of future consequences.</p>
-<p>Neuroscientific evidence supports this model. Brain imaging studies reveal that chronic procrastinators have a larger amygdala — the brain region associated with fear and threat response — and weaker connections between the amygdala and the dorsal anterior cingulate cortex, which translates intention into action. In essence, procrastinators experience stronger emotional responses to tasks and have less capacity to override those emotions with rational behaviour.</p>
-<p>The consequences of chronic procrastination extend far beyond missed deadlines. Studies link it to higher levels of stress, poorer academic and professional performance, reduced physical health — as individuals delay medical appointments and healthy lifestyle changes — and impaired relationships. Paradoxically, the relief procrastination provides is temporary; guilt and anxiety rapidly replace the initial comfort of avoidance.</p>
-<p>Effective interventions focus on emotion regulation rather than time management. Techniques such as self-compassion (reducing harsh self-criticism after setbacks), implementation intentions ("if-then" planning), and task decomposition into smaller, less threatening steps have all shown promise. The goal is not to force oneself through discomfort with willpower alone, but to make tasks feel psychologically safer to begin.</p>`,
-  questions:[
-    {q:'How do contemporary researchers understand procrastination?',opts:['As poor time management','As laziness and low motivation','As emotional avoidance of negative feelings','As a genetic trait'],ans:2},
-    {q:'What physical brain difference do chronic procrastinators tend to have?',opts:['A smaller prefrontal cortex','A larger amygdala','A weaker hippocampus','A larger cerebellum'],ans:1},
-    {q:'Which of the following is listed as a consequence of chronic procrastination?',opts:['Improved creativity','Stronger relationships','Better academic performance','Poorer physical health'],ans:3},
-    {q:'What is the paradox of procrastination described in paragraph 4?',opts:['It improves productivity long-term','The short-term relief is replaced by more anxiety','Procrastinators perform better under pressure','It only affects students, not professionals'],ans:1},
-    {q:'According to the passage, effective treatment of procrastination should focus on:',opts:['Stricter deadlines and penalties','Emotion regulation techniques','Removing distractions','Increasing workload gradually'],ans:0}
-  ]
-}
-];
-
-const WRITING_TASKS = [
-  {type:'Task 2',prompt:'Some people believe that the best way to improve public health is through increasing taxes on unhealthy food and drinks. Others disagree with this approach. Discuss both views and give your own opinion.',tips:['Write 250+ words','Clear introduction with thesis','Minimum 2 body paragraphs','Address both sides before giving your opinion','Formal academic register']},
-  {type:'Task 2',prompt:'In many countries, young people are leaving rural areas to live and work in cities. What are the reasons for this trend? What are the effects on both cities and rural areas?',tips:['Write 250+ words','Explain causes clearly (education, jobs, lifestyle)','Analyse effects on both settings','Use cohesive devices: furthermore, consequently','End with a balanced conclusion']},
-  {type:'Task 2',prompt:'The rise of social media has had a negative impact on individuals and society as a whole. To what extent do you agree or disagree?',tips:['Take a clear stance in your introduction','Acknowledge opposing arguments fairly','Use specific examples to support your view','Vary your sentence structures','Check for spelling and grammar errors']},
-  {type:'Task 2',prompt:'Many governments spend large amounts of money on arts and culture. Some people think this money should be spent on other priorities. Do you agree or disagree?',tips:['Define "arts and culture" briefly','Weigh economic vs social benefits','Consider heritage, tourism, soft power','Present a nuanced position','Strong concluding paragraph required']},
-  {type:'Task 2',prompt:'Governments should make laws that limit working hours and ensure employees have adequate leisure time. To what extent do you agree or disagree?',tips:['Discuss health, productivity and economic perspectives','Use conditionals: "If working hours were reduced..."','Include counter-arguments','Lexical range: legislation, mandate, wellbeing','250-300 words recommended']},
-  {type:'Task 1',prompt:'The bar chart below shows the percentage of adults in four countries who used the internet daily in 2005, 2010, and 2020. Summarise the information by selecting and reporting the main features, and make comparisons where relevant.\n\n[Data: UK: 35% / 65% / 96% | Germany: 30% / 60% / 91% | Brazil: 10% / 35% / 74% | India: 2% / 8% / 43%]',tips:['Write 150+ words','Describe overall trend first','Compare countries at key points','Use accurate data references','No personal opinion in Task 1']},
-  {type:'Task 1',prompt:'The pie charts show how household waste was divided into different categories in 2005 and 2020 in a European city.\n\n[2005: Food 35%, Paper 25%, Plastic 15%, Glass 15%, Other 10%]\n[2020: Food 28%, Paper 18%, Plastic 30%, Glass 10%, Other 14%]',tips:['Compare the two time periods','Highlight the most significant changes','Use language of change: rose, fell, remained stable','Organise by most notable shifts','Do not list all numbers — select key data']},
-  {type:'Task 2',prompt:'Some people think that a sense of competition in children should be encouraged, while others believe it can have negative effects. Discuss both views and give your own opinion.',tips:['Consider academic and psychological perspectives','Define healthy vs unhealthy competition','Address age and context appropriately','Use topic-specific vocabulary: rivalry, achievement, collaboration','End with your clear opinion']},
-];
-
-const SPEAKING_TOPICS = [
-  {
-    part1:['Do you enjoy reading? What types of books do you prefer?','How has technology changed the way people read?','Did you read a lot as a child?'],
-    part2:{topic:'Describe a book or article that had a significant impact on you.',points:['What it was about','When and why you read it','How it affected your thinking or behaviour'],note:'You have 1 minute to prepare. Speak for 1-2 minutes.'},
-    part3:['In what ways does reading benefit society?','Do you think schools should require students to read classic literature? Why?','How might reading habits change in the next 20 years?']
-  },
-  {
-    part1:['What do you do to stay healthy?','Do people in your country exercise regularly?','How important is mental health compared to physical health?'],
-    part2:{topic:'Describe a time when you had to make an important decision about your health or lifestyle.',points:['What the decision was','Why it was difficult','What you decided and why'],note:'You have 1 minute to prepare. Speak for 1-2 minutes.'},
-    part3:['Who is responsible for public health — individuals or governments?','Why do many people struggle to maintain a healthy lifestyle despite knowing the risks?','How could healthcare systems be improved in your country?']
-  },
-  {
-    part1:['What forms of public transport do you use?','How is transport in your town or city?','Would you prefer to live in a city centre or a suburb? Why?'],
-    part2:{topic:'Describe a city or town you have visited that impressed you.',points:['Where it is and when you visited','What made it impressive','What you did there'],note:'You have 1 minute to prepare. Speak for 1-2 minutes.'},
-    part3:['How can cities be made more sustainable?','What are the advantages and disadvantages of rapid urbanisation?','Should governments limit the growth of major cities?']
-  },
-  {
-    part1:['Do you think learning a foreign language is important? Why?','How did you learn English?','Is it easier to learn languages as a child or adult?'],
-    part2:{topic:'Describe a time you had to communicate in a challenging situation.',points:['When and where it happened','What made communication difficult','How you overcame the challenge'],note:'You have 1 minute to prepare. Speak for 1-2 minutes.'},
-    part3:['Should all children learn a global language like English in school?','Is it possible for a language to disappear? What are the consequences?','How does language shape the way we think?']
-  },
-  {
-    part1:['Do you enjoy travelling? Where have you been?','What is your favourite way to travel — by plane, train, or car?','How do you plan your trips?'],
-    part2:{topic:'Describe an experience of travelling to a new place that was different from where you grew up.',points:['Where you went','What surprised or challenged you','What you learned from the experience'],note:'You have 1 minute to prepare. Speak for 1-2 minutes.'},
-    part3:['What are the environmental costs of international tourism?','Should governments promote or restrict tourism?','How has the experience of travel changed in the last 20 years?']
-  }
-];
-
-const LISTENING_EXERCISES = [
-  {
-    title:'Interview: Climate Scientist on Carbon Capture',
-    script:`Interviewer: Dr. Patel, can you explain what carbon capture technology is and how it works?\n\nDr. Patel: Certainly. Carbon capture, or CCS, refers to a set of technologies designed to trap carbon dioxide emissions — primarily from industrial sources like power plants and factories — before they enter the atmosphere. The captured CO₂ is then compressed and stored underground in geological formations, often depleted oil and gas fields.\n\nInterviewer: How effective is it at reducing emissions?\n\nDr. Patel: Current CCS facilities can capture up to ninety percent of CO₂ from a single emission source. However, the technology remains expensive and energy-intensive — you actually use additional energy to run the capture process itself. Critics argue that this investment would be better directed toward renewable energy sources that produce no CO₂ in the first place.\n\nInterviewer: Is there any other application beyond industrial use?\n\nDr. Patel: Yes — direct air capture, or DAC, is a newer and more ambitious approach. Rather than capturing emissions at source, DAC machines draw ambient air from the atmosphere and chemically extract CO₂ from it. This could theoretically remove historical emissions — not just prevent new ones. The challenge is cost and scale. To make a meaningful difference, we would need to deploy thousands of these facilities worldwide.`,
-    questions:[
-      {q:'What does CCS stand for?',opts:['Carbon Collection System','Carbon Capture and Storage','Climate Control Science','Carbon Conservation Scheme'],ans:1},
-      {q:'What is one criticism of CCS mentioned in the interview?',opts:['It only works in developing countries','It is too dangerous underground','It uses additional energy to operate','It cannot capture enough CO₂'],ans:2},
-      {q:'How is direct air capture different from standard CCS?',opts:['It captures CO₂ from the ocean','It removes CO₂ from the atmosphere directly','It uses solar energy to run','It only works in cold climates'],ans:1},
-      {q:'What percentage of CO₂ can current CCS facilities capture from one source?',opts:['50%','70%','90%','100%'],ans:2}
-    ]
-  },
-  {
-    title:'Lecture Extract: The History of the Internet',
-    script:`Today I want to trace the development of the internet from its origins as a military communications network to the ubiquitous global infrastructure it has become.\n\nThe story begins in the late 1960s with ARPANET — the Advanced Research Projects Agency Network — funded by the United States Department of Defense. Its primary purpose was not, as is commonly believed, to survive a nuclear attack, but rather to allow researchers at different universities to share computing resources more efficiently.\n\nThroughout the 1970s and 80s, the network expanded gradually, primarily within academic institutions. Email emerged as its first killer application — a term we use for technologies so useful they drive adoption of the underlying platform. By 1984, the domain name system — DNS — was introduced, replacing numerical IP addresses with readable names.\n\nThe truly transformative moment came in 1991 when Tim Berners-Lee, a British scientist working at CERN in Switzerland, invented the World Wide Web. Crucially, he declined to patent it, making it freely available to all. This decision arguably did more to democratise information access than any single event in human history.\n\nCommercialisation accelerated in the mid-1990s. The number of internet users grew from one million in 1993 to four hundred million by 2000. The dot-com boom and subsequent bust reshaped business models, but the infrastructure — and the habit of connectivity — remained.`,
-    questions:[
-      {q:'What was the original purpose of ARPANET?',opts:['Military communications in case of nuclear war','Sharing computing resources between universities','Commercial data transfer','Providing public internet access'],ans:1},
-      {q:'What is a "killer application"?',opts:['A dangerous software programme','A technology so useful it drives platform adoption','The first commercial internet product','A type of cyberattack'],ans:1},
-      {q:'When was the World Wide Web invented?',opts:['1969','1984','1991','1999'],ans:2},
-      {q:'Why was Tim Berners-Lee\'s decision not to patent the web significant?',opts:['It made him very wealthy','It prevented commercial use','It made the web freely available to everyone','It allowed governments to control it'],ans:2}
-    ]
-  }
-];
-
-const WRITING_PHRASES = {
-  intro:['It is widely acknowledged that','The issue of X has generated considerable debate','In recent years, there has been growing concern about','This essay will examine both perspectives before reaching a conclusion'],
-  adding:['Furthermore','In addition to this','Moreover','Not only that, but'],
-  contrast:['However','On the other hand','Nevertheless','Despite this','In contrast'],
-  cause:['As a result of','Consequently','This leads to','This gives rise to'],
-  conclude:['In conclusion, it can be argued that','Taking all factors into consideration','To summarise, the evidence suggests that','Ultimately, the balance of evidence indicates']
-};
-
-// ═══════════════════════════════════════════════════════
-// STATE
-// ═══════════════════════════════════════════════════════
-const KEY = 'ielts-tutor-v2';
+// ─── STATE ───────────────────────────────────────────────────
+const KEY = 'htracker-v1';
 let S = (() => {
   try { const r = localStorage.getItem(KEY); if(r) return JSON.parse(r); } catch(e){}
   return {
-    startDate: new Date().toISOString().split('T')[0],
-    completedDays: [],
-    tasksDone: {},       // date -> [task keys]
-    vocabLearned: [],    // indices into VOCAB_BANK
-    vocabReview: {},     // index -> {correct,total,nextReview}
-    scores: { reading:[], writing:[], speaking:[], listening:[] },
-    settings: { notif: true, notifTime:'09:00', darkMode:'auto', dailyGoal: 4 },
-    streak: 0,
-    lastActive: ''
+    habits: [],
+    settings: {
+      notif: { morning:true, midday:false, evening:false, milestone:true },
+      intg:  { health:false, activity:false, sleep:false, headspace:false,
+               books:false, screentime:false, myfitnesspal:false, hydro:false }
+    }
   };
 })();
+
 function save() { localStorage.setItem(KEY, JSON.stringify(S)); }
+function uid()  { return Math.random().toString(36).slice(2)+Date.now().toString(36); }
 
-// ─── DATE UTILS ───────────────────────────────────────
-function todayS() { return new Date().toISOString().split('T')[0]; }
-function dayNum() {
-  const start = new Date(S.startDate), today = new Date(todayS());
-  return Math.floor((today - start) / 86400000) + 1;
+// ─── DATE UTILS ───────────────────────────────────────────────
+function todayS()   { return new Date().toISOString().split('T')[0]; }
+function ds(d)      { return d.toISOString().split('T')[0]; }
+function weekDays() {
+  const t = new Date(), dow = t.getDay();
+  const mon = new Date(t); mon.setDate(t.getDate() - ((dow+6)%7));
+  return Array.from({length:7}, (_,i) => { const d=new Date(mon); d.setDate(mon.getDate()+i); return ds(d); });
 }
-function dateLabel(d) {
-  const dt = new Date(d+'T12:00:00');
-  return dt.toLocaleDateString('en-GB', {day:'numeric',month:'short'});
-}
-function updateStreak() {
-  const t = todayS();
-  if(S.lastActive === t) return;
-  const yesterday = new Date(); yesterday.setDate(yesterday.getDate()-1);
-  const yStr = yesterday.toISOString().split('T')[0];
-  if(S.lastActive === yStr) S.streak++;
-  else if(S.lastActive !== t) S.streak = 1;
-  S.lastActive = t;
-  save();
+function last30() {
+  const a=[]; const t=new Date();
+  for(let i=29;i>=0;i--){ const d=new Date(t); d.setDate(t.getDate()-i); a.push(ds(d)); }
+  return a;
 }
 
-// ─── VOCAB FOR TODAY ──────────────────────────────────
-function getTodayVocab() {
-  const day = dayNum();
-  const start = ((day - 1) * 10) % VOCAB_BANK.length;
-  const words = [];
-  for(let i = 0; i < 10; i++) words.push({idx: (start+i) % VOCAB_BANK.length, ...VOCAB_BANK[(start+i) % VOCAB_BANK.length]});
-  return words;
-}
-
-// ─── TODAY'S TASKS ────────────────────────────────────
-function getTodayTasks() {
-  const day = dayNum();
-  return [
-    {key:'vocab',  icon:'📝', color:'#AF52DE20', iconColor:'#AF52DE', name:'Vocabulary',  desc:'Learn 10 new words for today', screen:'vocab'},
-    {key:'read',   icon:'📖', color:'#007AFF20', iconColor:'#007AFF', name:'Reading',     desc:'Passage + comprehension questions', skill:'reading'},
-    {key:'write',  icon:'✍️', color:'#FF2D5520', iconColor:'#FF2D55', name:'Writing',     desc: day%2===0 ? 'Academic Task 1' : 'Essay Task 2', skill:'writing'},
-    {key:'listen', icon:'🎧', color:'#5AC8FA20', iconColor:'#5AC8FA', name:'Listening',   desc:'Audio transcript + questions', skill:'listening'},
-    {key:'speak',  icon:'🗣️', color:'#FF9F0A20', iconColor:'#FF9F0A', name:'Speaking',    desc:'Cue card + discussion practice', skill:'speaking'},
-  ];
-}
-
-function isTaskDone(key) {
-  const t = todayS();
-  return (S.tasksDone[t] || []).includes(key);
-}
-function markTaskDone(key) {
-  const t = todayS();
-  if(!S.tasksDone[t]) S.tasksDone[t] = [];
-  if(!S.tasksDone[t].includes(key)) {
-    S.tasksDone[t].push(key);
-    if(!S.completedDays.includes(t)) {
-      const done = S.tasksDone[t].length;
-      if(done >= S.settings.dailyGoal) S.completedDays.push(t);
-    }
-    save();
-    showToast('Task marked as complete ✓');
+// ─── HABIT UTILS ─────────────────────────────────────────────
+const done   = (h,d) => h.completions.includes(d);
+const pct    = (h)   => Math.min(100, Math.round(h.completions.length/h.goal*100));
+const streak = (h) => {
+  const t=todayS(); let s=0, d=new Date();
+  if(!done(h,t)) d.setDate(d.getDate()-1); // не обнулять утром
+  while(done(h,ds(d))){ s++; d.setDate(d.getDate()-1); }
+  return s;
+};
+const bestStreak = (h) => {
+  if(!h.completions.length) return 0;
+  const sorted=[...h.completions].sort();
+  let b=1,c=1;
+  for(let i=1;i<sorted.length;i++){
+    const diff=(new Date(sorted[i])-new Date(sorted[i-1]))/86400000;
+    if(diff===1){c++;b=Math.max(b,c);}else c=1;
   }
-  updateStreak();
-}
+  return b;
+};
+const dayProg  = (d) => !S.habits.length ? 0 : S.habits.filter(h=>done(h,d)).length/S.habits.length;
+const weekProg = () => {
+  const wd=weekDays(), t=todayS(), past=wd.filter(d=>d<=t);
+  if(!past.length||!S.habits.length) return 0;
+  return past.reduce((s,d)=>s+dayProg(d),0)/past.length;
+};
+const monthProg = () => {
+  if(!S.habits.length) return 0;
+  const t=new Date(), days=[];
+  for(let i=1;i<=t.getDate();i++){ const d=new Date(t.getFullYear(),t.getMonth(),i); days.push(ds(d)); }
+  return days.reduce((s,d)=>s+dayProg(d),0)/days.length;
+};
+const totalStreak = () => {
+  if(!S.habits.length) return 0;
+  const t=todayS(); let s=0, d=new Date();
+  if(!S.habits.every(h=>done(h,t))) d.setDate(d.getDate()-1); // не обнулять утром
+  while(S.habits.every(h=>done(h,ds(d)))){ s++; d.setDate(d.getDate()-1); }
+  return s;
+};
 
-// ─── TOAST ────────────────────────────────────────────
-function showToast(msg) {
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  setTimeout(() => el.classList.remove('show'), 2200);
-}
+// ─── NAV ─────────────────────────────────────────────────────
+const DAY   = ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'];
+const DAY_F = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const MON   = ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'];
 
-// ─── NAV ─────────────────────────────────────────────
 let tab = 'today';
-let skillTab = 'reading';
-
 function goTab(t) {
-  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-  document.querySelectorAll('.tab-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(b=>b.classList.remove('active'));
   document.getElementById('screen-'+t).classList.add('active');
   document.getElementById('tab-'+t).classList.add('active');
   tab = t;
+  document.getElementById('fab').style.display = t==='today'?'flex':'none';
   render();
 }
-
-function goSkill(sk) {
-  skillTab = sk;
-  document.getElementById('skills-c').innerHTML = '';
-  renderSkills();
-}
-
 function render() {
   if(tab==='today')    renderToday();
-  else if(tab==='skills')   renderSkills();
-  else if(tab==='vocab')    renderVocab();
   else if(tab==='progress') renderProgress();
-  else                      renderSettings();
+  else                 renderSettings();
 }
 
-// ─── SHEET ────────────────────────────────────────────
-function openSh(title, html) {
-  document.getElementById('sh-t').textContent = title;
-  document.getElementById('sh-c').innerHTML = html;
-  document.getElementById('ov').classList.add('on');
-  document.getElementById('sh').classList.add('on');
+// ─── RING ────────────────────────────────────────────────────
+function ring(p, color, label) {
+  const r=34, circ=2*Math.PI*r, off=circ*(1-p/100);
+  return `<div class="ring-item">
+    <div class="ring-wrap">
+      <svg width="80" height="80" viewBox="0 0 80 80">
+        <circle class="ring-track" cx="40" cy="40" r="${r}"/>
+        <circle class="ring-fill" cx="40" cy="40" r="${r}" stroke="${color}"
+          stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${circ.toFixed(1)}"
+          data-off="${off.toFixed(1)}"/>
+      </svg>
+      <div class="ring-pct" style="color:${color}">${p}%</div>
+    </div>
+    <div class="ring-label">${label}</div>
+  </div>`;
 }
-function closeSh() {
-  document.getElementById('ov').classList.remove('on');
-  document.getElementById('sh').classList.remove('on');
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER TODAY
-// ═══════════════════════════════════════════════════════
-function renderToday() {
-  updateStreak();
-  const day = dayNum();
-  const t = todayS();
-  const tasks = getTodayTasks();
-  const doneCt = tasks.filter(tk => isTaskDone(tk.key)).length;
-  const vocabToday = getTodayVocab();
-
-  // Calendar strip: last 7 days
-  const calDays = [];
-  for(let i=6; i>=0; i--) {
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const ds = d.toISOString().split('T')[0];
-    const dayDone = (S.tasksDone[ds]||[]).length;
-    let cls = ds===t ? 'today-day' : i===0 ? 'today-day' : ds<t ? (dayDone>=4?'done-day':dayDone>0?'partial-day':'empty-day') : 'future-day';
-    const label = ['S','M','T','W','T','F','S'][d.getDay()];
-    calDays.push(`<div class="cal-day ${cls}"><div class="cal-day-num">${d.getDate()}</div><div class="cal-day-lbl">${label}</div></div>`);
-  }
-
-  const taskHtml = tasks.map(tk => {
-    const done = isTaskDone(tk.key);
-    const onclick = tk.screen ? `goTab('${tk.screen}')` : `goTab('skills');goSkill('${tk.skill}')`;
-    return `<div class="task-card fadein" onclick="${onclick}">
-      <div class="task-icon" style="background:${tk.color}">${tk.icon}</div>
-      <div class="task-body">
-        <div class="task-name">${tk.name}</div>
-        <div class="task-desc">${tk.desc}</div>
-      </div>
-      <div class="task-check ${done?'done':''}">${done?'✓':''}</div>
-    </div>`;
-  }).join('');
-
-  const vocabPreview = vocabToday.slice(0,4).map(v => {
-    const learned = S.vocabLearned.includes(v.idx);
-    return `<div class="vcard ${learned?'learned':''}" onclick="goTab('vocab')">
-      <div class="vcard-word">${v.w}</div>
-      <div class="vcard-pos">${v.pos}</div>
-      <div class="vcard-def">${v.def}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('today-c').innerHTML = `
-    <div class="screen-header">
-      <div class="screen-title">Today</div>
-      <div class="screen-subtitle">${dateLabel(t)} · Day ${day} of 60</div>
-    </div>
-    <div class="hero hero-bg-study">
-      <div class="hero-badge">IELTS 2-Month Plan</div>
-      <div class="hero-title">${doneCt===0?'Ready to study?':doneCt===tasks.length?'Day complete! 🎉':`Keep going!`}</div>
-      <div class="hero-sub">${doneCt} of ${tasks.length} tasks done today</div>
-      <div class="hero-day"><div class="hero-day-num">${day}</div><div class="hero-day-lbl">Day</div></div>
-    </div>
-    <div class="streak-row">
-      <div class="streak-chip"><div class="streak-chip-ico">🔥</div><div><div class="streak-chip-val">${S.streak}</div><div class="streak-chip-lbl">Day streak</div></div></div>
-      <div class="streak-chip"><div class="streak-chip-ico">📚</div><div><div class="streak-chip-val">${S.vocabLearned.length}</div><div class="streak-chip-lbl">Words learned</div></div></div>
-    </div>
-    <div class="cal-strip">${calDays.join('')}</div>
-    <div class="section"><div class="sec-title">Today's Tasks</div>${taskHtml}</div>
-    <div class="section">
-      <div class="sec-title">Today's Vocabulary Preview</div>
-      <div class="vocab-scroll">${vocabPreview}</div>
-      <button class="action-btn primary" style="margin-top:10px" onclick="goTab('vocab')">Study All 10 Words →</button>
-    </div>`;
-}
-
-// ═══════════════════════════════════════════════════════
-// RENDER SKILLS
-// ═══════════════════════════════════════════════════════
-function renderSkills() {
-  const tabs = ['reading','writing','speaking','listening'];
-  const icons = {reading:'📖',writing:'✍️',speaking:'🗣️',listening:'🎧'};
-  const tabHtml = tabs.map(t => `<button class="stab ${skillTab===t?'active':''}" onclick="goSkill('${t}')">${icons[t]} ${t.charAt(0).toUpperCase()+t.slice(1)}</button>`).join('');
-
-  let content = '';
-  if(skillTab==='reading') content = renderReadingContent();
-  else if(skillTab==='writing') content = renderWritingContent();
-  else if(skillTab==='speaking') content = renderSpeakingContent();
-  else content = renderListeningContent();
-
-  document.getElementById('skills-c').innerHTML = `
-    <div class="screen-header"><div class="screen-title">Skills</div><div class="screen-subtitle">IELTS Practice</div></div>
-    <div class="skill-tabs">${tabHtml}</div>
-    ${content}`;
-
-  if(skillTab==='speaking') initSpeaking();
-  if(skillTab==='listening') initListening();
-}
-
-// ── READING ──────────────────────────────────────────
-let readState = {passIdx: dayNum() % READING_PASSAGES.length, answers: {}, submitted: false};
-
-function renderReadingContent() {
-  const p = READING_PASSAGES[readState.passIdx % READING_PASSAGES.length];
-  const qHtml = p.questions.map((q,i) => {
-    const optsHtml = q.opts.map((o,j) => {
-      let cls = 'q-opt';
-      if(readState.submitted) {
-        if(j===q.ans) cls+=' correct';
-        else if(readState.answers[i]===j) cls+=' wrong';
-      } else if(readState.answers[i]===j) cls+=' selected';
-      return `<button class="${cls}" onclick="selectAnswer(${i},${j})">${o}</button>`;
-    }).join('');
-    return `<div class="q-box"><div class="q-num">Question ${i+1}</div><div class="q-text">${q.q}</div><div class="q-opts">${optsHtml}</div></div>`;
-  }).join('');
-
-  const score = readState.submitted ? p.questions.filter((_,i) => readState.answers[i]===p.questions[i].ans).length : null;
-  const actionBtn = readState.submitted
-    ? `<button class="action-btn success" onclick="nextPassage()">Next Passage →</button>`
-    : `<button class="action-btn primary" onclick="submitReading()">Check Answers</button>`;
-
-  return `
-    <div class="passage-box"><div class="passage-title">${p.title}</div><div class="passage-text">${p.text}</div></div>
-    <div class="section"><div class="sec-title">Comprehension Questions ${readState.submitted?`· ${score}/${p.questions.length} correct`:''}</div></div>
-    ${qHtml}
-    ${actionBtn}`;
-}
-
-window.selectAnswer = function(q,a) {
-  if(readState.submitted) return;
-  readState.answers[q] = a;
-  renderSkills();
-};
-window.submitReading = function() {
-  if(Object.keys(readState.answers).length < READING_PASSAGES[readState.passIdx % READING_PASSAGES.length].questions.length) {
-    showToast('Please answer all questions first'); return;
-  }
-  readState.submitted = true;
-  const p = READING_PASSAGES[readState.passIdx % READING_PASSAGES.length];
-  const score = p.questions.filter((_,i) => readState.answers[i]===p.questions[i].ans).length;
-  const band = score>=5?7.5:score>=4?7:score>=3?6.5:score>=2?6:5.5;
-  S.scores.reading.push({date:todayS(), score, band});
-  markTaskDone('read');
-  save();
-  renderSkills();
-};
-window.nextPassage = function() {
-  readState = {passIdx: (readState.passIdx+1) % READING_PASSAGES.length, answers:{}, submitted:false};
-  renderSkills();
-};
-
-// ── WRITING ──────────────────────────────────────────
-let writeIdx = dayNum() % WRITING_TASKS.length;
-let writeTimerInterval = null;
-let writeTimerSec = 0;
-
-function renderWritingContent() {
-  const task = WRITING_TASKS[writeIdx];
-  const tipsHtml = task.tips.map(t => `<div class="tip-row"><div class="tip-ico">💡</div><div class="tip-text">${t}</div></div>`).join('');
-  const phrasesHtml = Object.entries(WRITING_PHRASES).map(([cat,phrases]) =>
-    `<div style="margin-bottom:10px"><div style="font-size:12px;font-weight:700;color:var(--blue);text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px">${cat}</div>${phrases.map(p=>`<div style="font-size:13px;color:var(--text2);margin-bottom:3px">• ${p}</div>`).join('')}</div>`
-  ).join('');
-
-  return `
-    <div class="prompt-box"><div class="prompt-type">${task.type}</div><div class="prompt-text">${task.prompt}</div></div>
-    <div style="display:flex;gap:10px;padding:0 16px 16px">
-      <div style="flex:1;background:var(--card);border-radius:14px;padding:12px;text-align:center;cursor:pointer" onclick="toggleWriteTimer()">
-        <div style="font-size:22px;font-weight:700;color:var(--orange)" id="write-timer">00:00</div>
-        <div style="font-size:11px;color:var(--text2)">Timer</div>
-      </div>
-      <div style="flex:1;background:var(--card);border-radius:14px;padding:12px;text-align:center">
-        <div style="font-size:22px;font-weight:700;color:var(--blue)" id="write-wc">0</div>
-        <div style="font-size:11px;color:var(--text2)">Words</div>
-      </div>
-      <div style="flex:1;background:var(--card);border-radius:14px;padding:12px;text-align:center;cursor:pointer" onclick="nextWriteTask()">
-        <div style="font-size:22px">🔄</div>
-        <div style="font-size:11px;color:var(--text2)">New Task</div>
-      </div>
-    </div>
-    <div class="writing-area">
-      <div class="writing-toolbar"><span class="wc-label">Your Essay</span><span class="wc-count" id="wc-top">0 words</span></div>
-      <textarea class="writing-input" id="essay-input" placeholder="Begin writing here…" oninput="countWords(this)"></textarea>
-    </div>
-    <div class="writing-tips"><div class="tips-title">Writing Tips</div>${tipsHtml}</div>
-    <div style="margin:0 16px 16px;background:var(--card);border-radius:16px;padding:16px">
-      <div class="tips-title">Useful Phrases</div>${phrasesHtml}
-    </div>
-    <button class="action-btn success" onclick="submitWriting()">Mark Task Complete</button>`;
-}
-
-window.countWords = function(el) {
-  const wc = el.value.trim().split(/\s+/).filter(Boolean).length;
-  const els = document.querySelectorAll('#write-wc,#wc-top');
-  els.forEach(e => { if(e.id==='wc-top') e.textContent=wc+' words'; else e.textContent=wc; });
-};
-window.toggleWriteTimer = function() {
-  if(writeTimerInterval) { clearInterval(writeTimerInterval); writeTimerInterval=null; }
-  else {
-    writeTimerInterval = setInterval(() => {
-      writeTimerSec++;
-      const m = String(Math.floor(writeTimerSec/60)).padStart(2,'0');
-      const s = String(writeTimerSec%60).padStart(2,'0');
-      const el = document.getElementById('write-timer');
-      if(el) el.textContent = m+':'+s;
-    },1000);
-  }
-};
-window.nextWriteTask = function() {
-  writeIdx = (writeIdx+1) % WRITING_TASKS.length;
-  clearInterval(writeTimerInterval); writeTimerInterval=null; writeTimerSec=0;
-  renderSkills();
-};
-window.submitWriting = function() {
-  const el = document.getElementById('essay-input');
-  const wc = el ? el.value.trim().split(/\s+/).filter(Boolean).length : 0;
-  if(wc < 50) { showToast('Write at least 50 words to complete'); return; }
-  clearInterval(writeTimerInterval); writeTimerInterval=null; writeTimerSec=0;
-  S.scores.writing.push({date:todayS(), words:wc});
-  markTaskDone('write');
-  save();
-  showToast('Writing task complete! Well done 🎉');
-};
-
-// ── SPEAKING ─────────────────────────────────────────
-let speakIdx = dayNum() % SPEAKING_TOPICS.length;
-let isRecording = false;
-let recTimer = null;
-let recSecs = 0;
-
-function renderSpeakingContent() {
-  const topic = SPEAKING_TOPICS[speakIdx];
-  const p1Html = topic.part1.map(q => `<div class="card-row"><div style="font-size:14px;line-height:1.5">${q}</div></div>`).join('');
-  const p3Html = topic.part3.map(q => `<div class="card-row"><div style="font-size:14px;line-height:1.5">${q}</div></div>`).join('');
-
-  return `
-    <div class="section"><div class="sec-title">Part 1 · Warm-up</div><div class="card">${p1Html}</div></div>
-    <div class="cue-card">
-      <div class="cue-title">Part 2 · Cue Card</div>
-      <div style="font-size:16px;font-weight:700;margin-bottom:10px">${topic.part2.topic}</div>
-      <div class="cue-items">${topic.part2.points.map(p=>`<div class="cue-item">• ${p}</div>`).join('')}</div>
-      <div class="cue-note">${topic.part2.note}</div>
-    </div>
-    <div style="background:var(--card);border-radius:16px;margin:0 16px 16px;padding:20px;text-align:center">
-      <button class="speak-btn idle" id="speak-btn" onclick="toggleRecord()">🎤</button>
-      <div class="speak-label" id="speak-label">Tap to start recording</div>
-      <div style="font-size:22px;font-weight:700;color:var(--text2)" id="rec-timer">0:00</div>
-    </div>
-    <div class="section"><div class="sec-title">Part 3 · Discussion</div><div class="card">${p3Html}</div></div>
-    <div style="margin:0 16px 16px;background:var(--card);border-radius:16px;padding:16px">
-      <div class="tips-title">Speaking Tips</div>
-      <div class="tip-row"><div class="tip-ico">💡</div><div class="tip-text">Use discourse markers: "Well, to be honest...", "That's an interesting question..."</div></div>
-      <div class="tip-row"><div class="tip-ico">💡</div><div class="tip-text">Extend answers — aim for 1-2 minutes for Part 2</div></div>
-      <div class="tip-row"><div class="tip-ico">💡</div><div class="tip-text">Use a range of tenses, conditionals and modal verbs</div></div>
-      <div class="tip-row"><div class="tip-ico">💡</div><div class="tip-text">Rephrase if you make a mistake — don't stop speaking</div></div>
-    </div>
-    <button class="action-btn secondary" onclick="nextSpeakTopic()">Next Topic</button>
-    <button class="action-btn success" onclick="markSpeakDone()">Mark Speaking Complete</button>`;
-}
-
-function initSpeaking() {}
-
-window.toggleRecord = function() {
-  isRecording = !isRecording;
-  const btn = document.getElementById('speak-btn');
-  const lbl = document.getElementById('speak-label');
-  if(isRecording) {
-    if(btn) { btn.className='speak-btn recording'; btn.textContent='⏹'; }
-    if(lbl) lbl.textContent = 'Recording... tap to stop';
-    recSecs = 0;
-    recTimer = setInterval(() => {
-      recSecs++;
-      const m=Math.floor(recSecs/60), s=recSecs%60;
-      const el = document.getElementById('rec-timer');
-      if(el) el.textContent=`${m}:${String(s).padStart(2,'0')}`;
-    }, 1000);
-  } else {
-    clearInterval(recTimer);
-    if(btn) { btn.className='speak-btn idle'; btn.textContent='🎤'; }
-    if(lbl) lbl.textContent = 'Tap to start recording';
-    if(recSecs >= 30) showToast('Good speaking session! (' + Math.floor(recSecs/60) + 'm ' + (recSecs%60) + 's)');
-  }
-};
-window.nextSpeakTopic = function() {
-  speakIdx = (speakIdx+1) % SPEAKING_TOPICS.length;
-  clearInterval(recTimer); isRecording=false; recSecs=0;
-  renderSkills();
-};
-window.markSpeakDone = function() {
-  S.scores.speaking.push({date:todayS(), secs:recSecs});
-  markTaskDone('speak'); save();
-  clearInterval(recTimer); isRecording=false;
-  showToast('Speaking practice complete! 🗣️');
-};
-
-// ── LISTENING ────────────────────────────────────────
-let listenIdx = dayNum() % LISTENING_EXERCISES.length;
-let listenAnswers = {}; let listenSubmitted = false;
-let ttsUtterance = null; let isPlaying = false; let ttsProgress = 0;
-
-function renderListeningContent() {
-  const ex = LISTENING_EXERCISES[listenIdx];
-  const qHtml = ex.questions.map((q,i) => {
-    const optsHtml = q.opts.map((o,j) => {
-      let cls = 'q-opt';
-      if(listenSubmitted) {
-        if(j===q.ans) cls+=' correct';
-        else if(listenAnswers[i]===j) cls+=' wrong';
-      } else if(listenAnswers[i]===j) cls+=' selected';
-      return `<button class="${cls}" onclick="selectListenAns(${i},${j})">${o}</button>`;
-    }).join('');
-    return `<div class="q-box"><div class="q-num">Question ${i+1}</div><div class="q-text">${q.q}</div><div class="q-opts">${optsHtml}</div></div>`;
-  }).join('');
-
-  const score = listenSubmitted ? ex.questions.filter((_,i) => listenAnswers[i]===ex.questions[i].ans).length : null;
-  const actionBtn = listenSubmitted
-    ? `<button class="action-btn success" onclick="nextListenEx()">Next Exercise →</button>`
-    : `<button class="action-btn primary" onclick="submitListening()">Check Answers</button>`;
-
-  const scriptLines = ex.script.split('\n').map(l => l.trim()).filter(Boolean)
-    .map(l => `<div style="margin-bottom:8px;font-size:14px;line-height:1.6;color:${l.includes(':')?'var(--text)':'var(--text2)'}">${l}</div>`).join('');
-
-  return `
-    <div class="listen-player">
-      <div class="listen-title">${ex.title}</div>
-      <button class="play-btn" id="play-btn" onclick="toggleTTS()">▶</button>
-      <div class="listen-progress"><div class="listen-fill" id="listen-fill"></div></div>
-      <div class="listen-time"><span id="listen-cur">0:00</span><span>Read aloud</span></div>
-    </div>
-    <div class="transcript-box">
-      <div class="transcript-title">Transcript</div>
-      <div class="transcript-text">${scriptLines}</div>
-    </div>
-    <div class="section"><div class="sec-title">Comprehension ${listenSubmitted?`· ${score}/${ex.questions.length} correct`:''}</div></div>
-    ${qHtml}
-    ${actionBtn}`;
-}
-
-// Preferred British voices in priority order
-const GB_VOICE_NAMES = ['Daniel','Serena','Oliver','Kate','Martha','Thomas','Arthur','Ava','Moira'];
-
-function getBritishVoice() {
-  const voices = speechSynthesis.getVoices();
-  // 1. Named British voices (most natural)
-  for (const name of GB_VOICE_NAMES) {
-    const v = voices.find(v => v.name.includes(name) && v.lang.startsWith('en'));
-    if (v) return v;
-  }
-  // 2. Any en-GB locale
-  const gb = voices.find(v => v.lang === 'en-GB');
-  if (gb) return gb;
-  // 3. Any en-GB-ish locale
-  const gbLoose = voices.find(v => v.lang.startsWith('en-GB'));
-  if (gbLoose) return gbLoose;
-  // 4. en-AU as fallback (non-American)
-  const au = voices.find(v => v.lang.startsWith('en-AU'));
-  if (au) return au;
-  // 5. Any English voice
-  return voices.find(v => v.lang.startsWith('en')) || null;
-}
-
-function applyBritishVoice(utterance) {
-  const voice = getBritishVoice();
-  if (voice) { utterance.voice = voice; utterance.lang = voice.lang; return; }
-  // Voices not loaded yet — wait for them then re-speak
-  utterance.lang = 'en-GB';
-  const onLoaded = () => {
-    speechSynthesis.onvoiceschanged = null;
-    const v = getBritishVoice();
-    if (v) { utterance.voice = v; utterance.lang = v.lang; }
-    speechSynthesis.speak(utterance);
-  };
-  speechSynthesis.onvoiceschanged = onLoaded;
-}
-
-function initListening() {}
-
-window.toggleTTS = function() {
-  if(!window.speechSynthesis) { showToast('Text-to-speech not supported'); return; }
-  if(isPlaying) {
-    speechSynthesis.cancel(); isPlaying = false;
-    const btn = document.getElementById('play-btn');
-    if(btn) btn.textContent='▶';
-    return;
-  }
-  const ex = LISTENING_EXERCISES[listenIdx];
-  ttsUtterance = new SpeechSynthesisUtterance(ex.script);
-  ttsUtterance.rate = 0.85; ttsUtterance.pitch = 1;
-  applyBritishVoice(ttsUtterance);
-  isPlaying = true;
-  const btn = document.getElementById('play-btn');
-  if(btn) btn.textContent='⏸';
-  let sec = 0;
-  const timer = setInterval(() => {
-    sec++;
-    const el = document.getElementById('listen-cur');
-    if(el) el.textContent = `${Math.floor(sec/60)}:${String(sec%60).padStart(2,'0')}`;
-    const fill = document.getElementById('listen-fill');
-    if(fill) fill.style.width = Math.min(100, sec/40*100)+'%';
-  }, 1000);
-  ttsUtterance.onend = () => {
-    clearInterval(timer); isPlaying=false;
-    const b = document.getElementById('play-btn'); if(b) b.textContent='▶';
-    const f = document.getElementById('listen-fill'); if(f) f.style.width='100%';
-  };
-  speechSynthesis.speak(ttsUtterance);
-};
-window.selectListenAns = function(q,a) {
-  if(listenSubmitted) return;
-  listenAnswers[q]=a; renderSkills();
-};
-window.submitListening = function() {
-  const ex = LISTENING_EXERCISES[listenIdx];
-  if(Object.keys(listenAnswers).length < ex.questions.length) { showToast('Answer all questions first'); return; }
-  listenSubmitted=true;
-  const score = ex.questions.filter((_,i) => listenAnswers[i]===ex.questions[i].ans).length;
-  S.scores.listening.push({date:todayS(), score, total:ex.questions.length});
-  markTaskDone('listen'); save(); renderSkills();
-};
-window.nextListenEx = function() {
-  if(isPlaying) { speechSynthesis.cancel(); isPlaying=false; }
-  listenIdx=(listenIdx+1)%LISTENING_EXERCISES.length;
-  listenAnswers={}; listenSubmitted=false;
-  renderSkills();
-};
-
-// ═══════════════════════════════════════════════════════
-// RENDER VOCAB
-// ═══════════════════════════════════════════════════════
-let fcIdx = 0; let fcFlipped = false; let fcMode = 'learn'; // 'learn' | 'review'
-
-function renderVocab() {
-  const todayWords = getTodayVocab();
-  markTaskDone('vocab'); // mark as seen
-
-  const allHtml = todayWords.map(v => {
-    const learned = S.vocabLearned.includes(v.idx);
-    return `<div class="task-card" onclick="openWordDetail(${v.idx})">
-      <div class="task-icon" style="background:#AF52DE20;font-size:18px;font-weight:700;color:#AF52DE">${v.w.slice(0,2).toUpperCase()}</div>
-      <div class="task-body"><div class="task-name">${v.w}</div><div class="task-desc">${v.pos} · ${v.def}</div></div>
-      <div class="task-check ${learned?'done':''}">${learned?'✓':''}</div>
-    </div>`;
-  }).join('');
-
-  // Flashcard
-  const w = todayWords[fcIdx % todayWords.length];
-  const fcHtml = `
-    <div class="flashcard ${fcFlipped?'flipped':''}" onclick="flipCard()" id="fc">
-      <div class="flashcard-inner">
-        <div class="flashcard-front">
-          <div class="fc-word">${w.w}</div>
-          <div class="fc-pos">${w.pos}</div>
-          <div class="fc-hint">Tap to reveal</div>
-        </div>
-        <div class="flashcard-back">
-          <div class="fc-def">${w.def}</div>
-          <div class="fc-example">"${w.ex}"</div>
-          <div class="fc-syns">≈ ${w.syns}</div>
-        </div>
-      </div>
-    </div>
-    <div class="fc-nav">
-      <button class="fc-btn wrong" onclick="fcAnswer(false)">✗</button>
-      <span class="fc-counter">${fcIdx+1} / ${todayWords.length}</span>
-      <button class="fc-btn right" onclick="fcAnswer(true)">✓</button>
-    </div>`;
-
-  document.getElementById('vocab-c').innerHTML = `
-    <div class="screen-header"><div class="screen-title">Vocabulary</div><div class="screen-subtitle">${S.vocabLearned.length} words learned total</div></div>
-    <div class="section"><div class="sec-title">Flashcard Review</div></div>
-    ${fcHtml}
-    <div class="section" style="margin-top:8px"><div class="sec-title">Today's 10 Words</div>${allHtml}</div>`;
-}
-
-window.flipCard = function() {
-  fcFlipped = !fcFlipped;
-  const fc = document.getElementById('fc');
-  if(fc) fc.className = 'flashcard' + (fcFlipped?' flipped':'');
-};
-window.fcAnswer = function(correct) {
-  const todayWords = getTodayVocab();
-  const w = todayWords[fcIdx % todayWords.length];
-  if(correct && !S.vocabLearned.includes(w.idx)) {
-    S.vocabLearned.push(w.idx);
-    save(); showToast('Word learned! +1 📝');
-  }
-  fcIdx = (fcIdx+1) % todayWords.length;
-  fcFlipped = false;
-  renderVocab();
-};
-window.openWordDetail = function(idx) {
-  const w = VOCAB_BANK[idx];
-  if(!w) return;
-  openSh(w.w, `
-    <div style="padding:0 16px 16px">
-      <div style="text-align:center;padding:20px 0 16px">
-        <div style="font-size:36px;font-weight:700;margin-bottom:6px">${w.w}</div>
-        <span class="badge badge-blue">${w.pos}</span>
-      </div>
-      <div class="card">
-        <div class="card-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-          <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">Definition</div>
-          <div style="font-size:16px;line-height:1.5">${w.def}</div>
-        </div>
-        <div class="card-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-          <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">Example</div>
-          <div style="font-size:14px;font-style:italic;color:var(--text2);line-height:1.6">"${w.ex}"</div>
-        </div>
-        <div class="card-row" style="flex-direction:column;align-items:flex-start;gap:6px">
-          <div style="font-size:12px;font-weight:700;color:var(--gray);text-transform:uppercase;letter-spacing:.4px">Synonyms</div>
-          <div style="font-size:14px;color:var(--blue);font-weight:600">${w.syns}</div>
-        </div>
-      </div>
-      <button class="action-btn primary" style="margin-top:8px" onclick="speakWord('${w.w}')">🔊 Pronounce</button>
-    </div>`);
-};
-window.speakWord = function(word) {
-  if(!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const u = new SpeechSynthesisUtterance(word);
-  u.rate = 0.78; u.pitch = 1;
-  applyBritishVoice(u);
-  speechSynthesis.speak(u);
-};
-
-// ═══════════════════════════════════════════════════════
-// RENDER PROGRESS
-// ═══════════════════════════════════════════════════════
-function renderProgress() {
-  const totalDays = S.completedDays.length;
-  const totalWords = S.vocabLearned.length;
-  const day = dayNum();
-
-  // Estimate band scores
-  const readScores = S.scores.reading;
-  const avgRead = readScores.length ? readScores.reduce((s,r) => s+(r.band||6),0)/readScores.length : 0;
-  const avgListen = S.scores.listening.length ? S.scores.listening.reduce((s,r) => s+(r.score/r.total*9),0)/S.scores.listening.length : 0;
-  const writeCount = S.scores.writing.length;
-  const speakCount = S.scores.speaking.length;
-
-  const overallBand = readScores.length || S.scores.listening.length
-    ? ((avgRead||5.5) + (avgListen||5.5) + 5.5 + 5.5) / 4
-    : null;
-
-  const skillBars = [
-    {name:'Reading',  color:'#007AFF', val: readScores.length ? Math.round(avgRead*10)/10 : '—', pct: readScores.length ? Math.min(100,(avgRead-4)/5*100) : 0},
-    {name:'Listening',color:'#5AC8FA', val: S.scores.listening.length ? Math.round(avgListen*10)/10 : '—', pct: S.scores.listening.length ? Math.min(100,(avgListen-4)/5*100) : 0},
-    {name:'Writing',  color:'#AF52DE', val: writeCount>0 ? `${writeCount} session${writeCount>1?'s':''}` : '—', pct: Math.min(100, writeCount*20)},
-    {name:'Speaking', color:'#FF9F0A', val: speakCount>0 ? `${speakCount} session${speakCount>1?'s':''}` : '—', pct: Math.min(100, speakCount*20)},
-  ];
-
-  const skillHtml = skillBars.map(s => `
-    <div class="skill-progress-card">
-      <div class="spc-hdr">
-        <div class="spc-name">${s.name}</div>
-        <div class="spc-band" style="color:${s.color}">${s.val}</div>
-      </div>
-      <div class="pbar"><div class="pbar-fill" style="width:${s.pct}%;background:${s.color}"></div></div>
-    </div>`).join('');
-
-  // Last 14 days calendar
-  const calDays = [];
-  for(let i=13; i>=0; i--) {
-    const d = new Date(); d.setDate(d.getDate()-i);
-    const ds = d.toISOString().split('T')[0];
-    const done = (S.tasksDone[ds]||[]).length;
-    const isT = ds===todayS();
-    let cls = isT?'today-day':done>=4?'done-day':done>0?'partial-day':ds<todayS()?'empty-day':'future-day';
-    calDays.push(`<div class="cal-day ${cls}" style="min-width:36px;height:52px"><div class="cal-day-num" style="font-size:12px">${d.getDate()}</div><div class="cal-day-lbl">${['S','M','T','W','T','F','S'][d.getDay()]}</div></div>`);
-  }
-
-  const rings = [
-    {p:Math.min(100,Math.round(totalDays/60*100)), color:'#34C759',label:'Days'},
-    {p:Math.min(100,Math.round(totalWords/200*100)),color:'#007AFF',label:'Words'},
-    {p:Math.min(100,Math.round(S.streak/30*100)),  color:'#FF9F0A',label:'Streak'},
-  ];
-  const ringsHtml = rings.map(r => {
-    const radius=30, circ=2*Math.PI*radius, off=circ*(1-r.p/100);
-    return `<div class="ring-item">
-      <div class="ring-wrap" style="width:66px;height:66px">
-        <svg width="66" height="66" viewBox="0 0 66 66">
-          <circle class="ring-track" cx="33" cy="33" r="${radius}" stroke-width="6"/>
-          <circle class="ring-fill" cx="33" cy="33" r="${radius}" stroke="${r.color}" stroke-width="6"
-            stroke-dasharray="${circ.toFixed(1)}" stroke-dashoffset="${circ.toFixed(1)}" data-off="${off.toFixed(1)}"/>
-        </svg>
-        <div class="ring-pct" style="color:${r.color};font-size:13px">${r.p}%</div>
-      </div>
-      <div class="ring-label">${r.label}</div>
-    </div>`;
-  }).join('');
-
-  document.getElementById('progress-c').innerHTML = `
-    <div class="screen-header"><div class="screen-title">Progress</div><div class="screen-subtitle">Day ${day} of 60</div></div>
-    ${overallBand ? `<div class="band-card">
-      <div><div class="band-num">${overallBand.toFixed(1)}</div></div>
-      <div class="band-info"><div class="band-label">Estimated Band</div><div class="band-range">${overallBand>=7?'C1–C2 Level':'B2 Level'}</div><div class="band-desc">Based on practice scores</div></div>
-    </div>` : `<div class="hero hero-bg-study" style="margin-bottom:16px"><div class="hero-badge">Target</div><div class="hero-title">IELTS Band 7.0+</div><div class="hero-sub">Complete tasks to track your progress</div></div>`}
-    <div class="rings-row">${ringsHtml}</div>
-    <div class="section">
-      <div class="sec-title">14-Day Study Calendar</div>
-      <div class="cal-strip" style="padding:0 16px 8px">${calDays.join('')}</div>
-    </div>
-    <div class="stat-grid">
-      <div class="stat-card"><div class="stat-val" style="color:var(--green)">${totalDays}</div><div class="stat-lbl">Days completed</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--blue)">${totalWords}</div><div class="stat-lbl">Words learned</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--orange)">🔥 ${S.streak}</div><div class="stat-lbl">Current streak</div></div>
-      <div class="stat-card"><div class="stat-val" style="color:var(--purple)">${day}</div><div class="stat-lbl">Day of program</div></div>
-    </div>
-    <div class="section"><div class="sec-title">Skill Progress</div>${skillHtml}</div>`;
-
-  requestAnimationFrame(() => requestAnimationFrame(() => {
-    document.querySelectorAll('.ring-fill[data-off]').forEach(el => {
+function animateRings() {
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.ring-fill[data-off]').forEach(el=>{
       el.style.strokeDashoffset = el.dataset.off;
-    });
-    document.querySelectorAll('.pbar-fill').forEach(el => {
-      const w = el.style.width; el.style.width='0'; requestAnimationFrame(()=>el.style.width=w);
     });
   }));
 }
 
-// ═══════════════════════════════════════════════════════
-// RENDER SETTINGS
-// ═══════════════════════════════════════════════════════
-function renderSettings() {
-  const ns = S.settings;
-  function tog(key) { return `<div class="toggle ${ns[key]?'on':''}" onclick="togSetting('${key}')"><div class="toggle-thumb"></div></div>`; }
+// ─── TODAY ───────────────────────────────────────────────────
+function renderToday() {
+  const now=new Date(), t=todayS(), wd=weekDays();
+  const stk=totalStreak();
+  const dp=Math.round(dayProg(t)*100);
+  const wp=Math.round(weekProg()*100);
+  const mp=Math.round(monthProg()*100);
 
-  document.getElementById('settings-c').innerHTML = `
-    <div class="screen-header"><div class="screen-title">Settings</div></div>
-    <div class="section"><div class="sec-title">Notifications</div>
-      <div class="card">
-        <div class="trow"><div class="trow-info"><div class="trow-name">Daily Reminder</div><div class="trow-desc">Study reminder each day</div></div>${tog('notif')}</div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">Reminder Time</div><div class="trow-desc">${ns.notifTime}</div></div>
-          <input type="time" value="${ns.notifTime}" onchange="S.settings.notifTime=this.value;save();renderSettings()" style="border:none;background:transparent;font-size:15px;color:var(--blue);outline:none;font-family:inherit"></div>
-      </div>
+  const weekHtml = wd.map(d=>{
+    const isT=d===t, isFut=d>t;
+    const dd=new Date(d+'T12:00:00');
+    const p=dayProg(d), hlen=S.habits.length;
+    let cls='', ico='';
+    if(isFut)          { cls=''; ico=''; }
+    else if(p===1&&hlen){ cls=isT?'cur':'done'; ico='✓'; }
+    else if(p>0)        { cls='partial'; ico='~'; }
+    else                { cls=isT?'cur':'missed'; ico=isT?'·':'—'; }
+    return `<div class="wday ${isT?'today':''}">
+      <div class="wday-lbl">${DAY[dd.getDay()]}</div>
+      <div class="wday-num">${dd.getDate()}</div>
+      <div class="wday-dot ${cls}">${ico}</div>
+    </div>`;
+  }).join('');
+
+  const habitsHtml = !S.habits.length
+    ? `<div class="empty"><div class="empty-ico">🌱</div><div class="empty-t">Нет привычек</div><div class="empty-s">Нажмите + чтобы добавить первую привычку</div></div>`
+    : S.habits.map((h,i)=>{
+        const isDone=done(h,t);
+        const p=pct(h);
+        return `<div class="hcard fadein" style="animation-delay:${i*.04}s" onclick="openDet('${h.id}')">
+          <div class="hcard-icon" style="background:${h.color}20">${h.icon}</div>
+          <div class="hcard-body">
+            <div class="hcard-name">${h.name}</div>
+            <div class="pbar"><div class="pbar-fill" style="width:${p}%;background:${h.color}"></div></div>
+            <div class="hcard-meta">${streak(h)>0?`🔥 ${streak(h)} · `:''}${h.completions.length}/${h.goal} дней · ${p}%</div>
+          </div>
+          <button class="check-btn ${isDone?'done':''}" id="cb-${h.id}"
+            onclick="event.stopPropagation();toggle('${h.id}')">${isDone?'✓':''}</button>
+        </div>`;
+      }).join('');
+
+  document.getElementById('today-c').innerHTML = `
+    <div class="screen-header">
+      <div class="screen-title">${now.getDate()} ${MON[now.getMonth()]}</div>
+      <div class="screen-subtitle">${DAY_F[now.getDay()]}</div>
     </div>
-    <div class="section"><div class="sec-title">Study Plan</div>
-      <div class="card">
-        <div class="trow"><div class="trow-info"><div class="trow-name">Program Start</div><div class="trow-desc">${dateLabel(S.startDate)}</div></div>
-          <input type="date" value="${S.startDate}" onchange="S.startDate=this.value;save();render()" style="border:none;background:transparent;font-size:14px;color:var(--blue);outline:none;font-family:inherit"></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">Daily Goal</div><div class="trow-desc">${ns.dailyGoal} tasks per day</div></div>
-          <select onchange="S.settings.dailyGoal=+this.value;save();renderSettings()" style="border:none;background:transparent;font-size:15px;color:var(--blue);font-family:inherit;outline:none">
-            ${[2,3,4,5].map(n=>`<option value="${n}" ${ns.dailyGoal===n?'selected':''}>${n}</option>`).join('')}
-          </select></div>
-      </div>
+    ${stk>0?`<div class="streak-card">
+      <div class="streak-icon">🔥</div>
+      <div><div class="streak-number">${stk}</div><div class="streak-label">дней подряд</div></div>
+    </div>`:''}
+    <div class="rings-card">
+      ${ring(dp,'#34C759','Сегодня')}
+      ${ring(wp,'#007AFF','Неделя')}
+      ${ring(mp,'#FF9F0A','Месяц')}
     </div>
-    <div class="section"><div class="sec-title">IELTS Info</div>
-      <div class="card">
-        <div class="trow"><div class="trow-info"><div class="trow-name">📖 Reading</div><div class="trow-desc">3 passages · 40 questions · 60 min</div></div></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">✍️ Writing</div><div class="trow-desc">Task 1 (150 words) + Task 2 (250 words) · 60 min</div></div></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">🗣️ Speaking</div><div class="trow-desc">3 parts · 11–14 min · face to face</div></div></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">🎧 Listening</div><div class="trow-desc">4 sections · 40 questions · ~30 min</div></div></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">🎯 Target Band</div><div class="trow-desc">7.0–8.0 (C1–C2 level)</div></div></div>
+    <div class="week-grid">${weekHtml}</div>
+    <div class="habits-section">
+      <div class="habits-hdr">
+        <div class="habits-hdr-title">Привычки</div>
+        <div class="habits-hdr-count">${S.habits.filter(h=>done(h,t)).length} / ${S.habits.length}</div>
       </div>
-    </div>
-    <div class="section"><div class="sec-title">App</div>
-      <div class="card">
-        <div class="trow"><div class="trow-info"><div class="trow-name">🔒 Privacy</div><div class="trow-desc">All data stored on your device</div></div></div>
-        <div class="trow"><div class="trow-info"><div class="trow-name">📦 Version 2.0</div><div class="trow-desc">IELTS Personal Tutor · PWA</div></div></div>
-      </div>
-    </div>
-    <button class="action-btn secondary" onclick="resetProgress()">Reset All Progress</button>`;
+      ${habitsHtml}
+    </div>`;
+  animateRings();
 }
 
-window.togSetting = function(key) {
-  S.settings[key] = !S.settings[key];
-  if(key==='notif' && S.settings.notif) requestNotifPermission();
-  save(); renderSettings();
-};
-window.resetProgress = function() {
-  if(!confirm('Reset all progress? This cannot be undone.')) return;
-  S.completedDays = []; S.tasksDone = {}; S.vocabLearned = [];
-  S.vocabReview = {}; S.scores = {reading:[],writing:[],speaking:[],listening:[]}; S.streak = 0;
-  save(); render(); showToast('Progress reset');
-};
+// ─── PROGRESS ────────────────────────────────────────────────
+function renderProgress() {
+  const habits=S.habits, t=todayS();
+  const total=habits.reduce((s,h)=>s+h.completions.length,0);
+  const rate=!habits.length?0:Math.round(habits.reduce((s,h)=>s+pct(h),0)/habits.length);
+  const best=!habits.length?0:Math.max(...habits.map(bestStreak));
 
-// ═══════════════════════════════════════════════════════
-// NOTIFICATIONS
-// ═══════════════════════════════════════════════════════
-function requestNotifPermission() {
-  if('Notification' in window && Notification.permission==='default') {
-    Notification.requestPermission().then(p => {
-      if(p==='granted') {
-        showToast('Notifications enabled!');
-        scheduleNotification();
-      }
-    });
+  const wd=weekDays();
+  const barsHtml=wd.map(d=>{
+    const p=Math.round(dayProg(d)*100);
+    const dd=new Date(d+'T12:00:00');
+    const isT=d===t;
+    return `<div class="bcol">
+      <div class="bbar" style="height:0%;background:${isT?'#007AFF':'#007AFF55'}" data-h="${p}"></div>
+      <div class="bday" style="${isT?'color:#007AFF;font-weight:700':''}">${DAY[dd.getDay()]}</div>
+    </div>`;
+  }).join('');
+
+  const cardsHtml=habits.map(h=>`
+    <div class="phcard fadein" onclick="openDet('${h.id}')">
+      <div class="phcard-hdr">
+        <div class="hcard-icon" style="background:${h.color}20">${h.icon}</div>
+        <div class="phcard-info">
+          <div class="phcard-name">${h.name}</div>
+          <div class="phcard-sub">🔥 ${streak(h)} · ${h.completions.length} из ${h.goal} дней</div>
+        </div>
+        <div class="phcard-pct" style="color:${h.color}">${pct(h)}%</div>
+      </div>
+      <div class="pbar" style="height:6px"><div class="pbar-fill" style="width:0%;background:${h.color}" data-w="${pct(h)}"></div></div>
+    </div>`).join('');
+
+  document.getElementById('progress-c').innerHTML=`
+    <div class="screen-header"><div class="screen-title">Прогресс</div></div>
+    <div class="stats-grid">
+      <div class="scard"><div class="scard-val" style="color:#007AFF">${rate}%</div><div class="scard-lbl">Успешность</div></div>
+      <div class="scard"><div class="scard-val" style="color:#FF9F0A">🔥 ${best}</div><div class="scard-lbl">Лучшая серия</div></div>
+      <div class="scard"><div class="scard-val" style="color:#34C759">${total}</div><div class="scard-lbl">Всего выполнено</div></div>
+      <div class="scard"><div class="scard-val">${habits.length}</div><div class="scard-lbl">Привычек</div></div>
+    </div>
+    <div class="bar-chart">
+      <div class="bc-title">Активность за неделю</div>
+      <div class="bars">${barsHtml}</div>
+    </div>
+    ${!habits.length
+      ? `<div class="empty"><div class="empty-ico">📊</div><div class="empty-t">Нет данных</div><div class="empty-s">Добавьте привычки на вкладке «Сегодня»</div></div>`
+      : cardsHtml}`;
+  requestAnimationFrame(()=>requestAnimationFrame(()=>{
+    document.querySelectorAll('.bbar[data-h]').forEach(el=>{el.style.height=el.dataset.h+'%';});
+    document.querySelectorAll('.pbar-fill[data-w]').forEach(el=>{el.style.width=el.dataset.w+'%';});
+  }));
+}
+
+// ─── SETTINGS ────────────────────────────────────────────────
+const NOTIFS=[
+  {k:'morning',  n:'Утреннее напоминание', d:'08:00 ежедневно',     i:'☀️'},
+  {k:'midday',   n:'Дневной чек-ин',       d:'13:00 по будням',     i:'🕐'},
+  {k:'evening',  n:'Вечерний итог',        d:'21:30 ежедневно',     i:'🌙'},
+  {k:'milestone',n:'Вехи и серии',         d:'По событию',          i:'🏆'},
+];
+const INTGS=[
+  {k:'health',      n:'Apple Health',        d:'Шаги, пульс, сон', i:'❤️'},
+  {k:'activity',    n:'Activity / Fitness',  d:'Кольца, тренировки',i:'🏃'},
+  {k:'sleep',       n:'Sleep Focus',         d:'Режим сна',         i:'😴'},
+  {k:'headspace',   n:'Headspace / Calm',    d:'Медитации',         i:'🧘'},
+  {k:'books',       n:'Apple Books',         d:'Время чтения',      i:'📚'},
+  {k:'screentime',  n:'Screen Time',         d:'Лимиты использования',i:'📱'},
+  {k:'myfitnesspal',n:'MyFitnessPal',        d:'Калории, питание',  i:'🥗'},
+  {k:'hydro',       n:'Hydro / Water',       d:'Потребление воды',  i:'💧'},
+];
+
+function togHtml(item, group) {
+  const on = S.settings[group][item.k];
+  return `<div class="trow">
+    <div class="trow-info">
+      <div class="trow-name">${item.i} ${item.n}</div>
+      <div class="trow-desc">${item.d}</div>
+    </div>
+    <div class="toggle ${on?'on':''}" onclick="togSet('${group}','${item.k}')">
+      <div class="toggle-thumb"></div>
+    </div>
+  </div>`;
+}
+
+function renderSettings() {
+  document.getElementById('settings-c').innerHTML=`
+    <div class="screen-header"><div class="screen-title">Настройки</div></div>
+    <div class="sg"><div class="sg-lbl">Уведомления</div>
+      <div class="sg-card">${NOTIFS.map(n=>togHtml(n,'notif')).join('')}</div>
+    </div>
+    <div class="sg"><div class="sg-lbl">Интеграции</div>
+      <div class="sg-card">${INTGS.map(n=>togHtml(n,'intg')).join('')}</div>
+    </div>
+    <div class="sg"><div class="sg-lbl">Данные</div>
+      <div class="sg-card">
+        <div class="trow" style="cursor:pointer" onclick="exportData()">
+          <div class="trow-info"><div class="trow-name">📤 Экспорт</div><div class="trow-desc">Сохранить прогресс в JSON-файл</div></div>
+          <span style="color:var(--blue);font-size:20px;font-weight:300">›</span>
+        </div>
+        <div class="trow" style="cursor:pointer" onclick="document.getElementById('imp').click()">
+          <div class="trow-info"><div class="trow-name">📥 Импорт</div><div class="trow-desc">Восстановить прогресс из файла</div></div>
+          <span style="color:var(--blue);font-size:20px;font-weight:300">›</span>
+        </div>
+        <input id="imp" type="file" accept=".json" style="display:none" onchange="importData(this.files[0])">
+      </div>
+    </div>
+    <div class="sg"><div class="sg-lbl">О приложении</div>
+      <div class="sg-card">
+        <div class="trow"><div class="trow-info"><div class="trow-name">🔒 Приватность</div><div class="trow-desc">Данные хранятся только на устройстве</div></div></div>
+        <div class="trow"><div class="trow-info"><div class="trow-name">📦 Версия 1.0 PWA</div><div class="trow-desc">Habit Tracker · iOS Ready</div></div></div>
+      </div>
+    </div>`;
+}
+
+function togSet(group, key) {
+  S.settings[group][key] = !S.settings[group][key];
+  save(); renderSettings();
+}
+
+// ─── CELEBRATE ───────────────────────────────────────────────
+function celebrate() {
+  const wrap=document.createElement('div');
+  wrap.style.cssText='position:fixed;inset:0;pointer-events:none;z-index:999;overflow:hidden';
+  const colors=['#007AFF','#34C759','#FF9F0A','#FF3B30','#AF52DE','#FF2D55','#FFD60A'];
+  for(let i=0;i<64;i++){
+    const p=document.createElement('div');
+    const sz=6+Math.random()*8;
+    p.style.cssText=`position:absolute;left:${Math.random()*100}%;top:-${sz*2}px;width:${sz}px;height:${sz}px;background:${colors[i%colors.length]};border-radius:${Math.random()>.5?'50%':'2px'};animation:confetti-fall ${1+Math.random()*1.5}s ${Math.random()*.5}s ease-in forwards`;
+    wrap.appendChild(p);
+  }
+  document.body.appendChild(wrap);
+  setTimeout(()=>wrap.remove(),3500);
+}
+
+function showToast(msg) {
+  document.querySelectorAll('.habit-toast').forEach(e=>e.remove());
+  const el=document.createElement('div');
+  el.className='habit-toast';
+  el.style.cssText=`position:fixed;bottom:calc(108px + env(safe-area-inset-bottom));left:50%;transform:translateX(-50%);background:#1C1C1E;color:#fff;padding:12px 22px;border-radius:14px;font-size:15px;font-weight:600;z-index:998;animation:toastin .3s cubic-bezier(.34,1.56,.64,1);white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.35)`;
+  el.textContent=msg;
+  document.body.appendChild(el);
+  setTimeout(()=>{el.style.cssText+=';opacity:0;transition:opacity .3s';setTimeout(()=>el.remove(),300);},2400);
+}
+
+function checkMilestone(h, prevLen) {
+  const prevPct=Math.min(100,Math.round(prevLen/h.goal*100));
+  const newPct=pct(h);
+  const hit=[25,50,75,100].find(m=>prevPct<m&&newPct>=m);
+  if(hit){
+    showToast(hit===100?'🏆 Цель достигнута!': `🎯 Веха ${hit}% — так держать!`);
+    if(hit>=50) celebrate();
   }
 }
 
-function scheduleNotification() {
-  if(!('Notification' in window) || Notification.permission!=='granted') return;
-  if(!S.settings.notif) return;
-  const [h,m] = S.settings.notifTime.split(':').map(Number);
-  const now = new Date();
-  const next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), h, m, 0);
-  if(next <= now) next.setDate(next.getDate()+1);
-  const delay = next - now;
-  setTimeout(() => {
-    new Notification('IELTS Daily Study 📚', {
-      body: `Day ${dayNum()}: Your English lesson is ready! Keep your streak going 🔥`,
-      icon: '/icon-192.png'
-    });
-  }, delay);
+// ─── EXPORT / IMPORT ────────────────────────────────────────
+function exportData() {
+  const blob=new Blob([JSON.stringify(S,null,2)],{type:'application/json'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url; a.download=`habits-${todayS()}.json`;
+  document.body.appendChild(a); a.click();
+  document.body.removeChild(a); URL.revokeObjectURL(url);
+  showToast('📦 Данные сохранены!');
 }
 
-// ═══════════════════════════════════════════════════════
-// SWIPE TO DISMISS SHEET
-// ═══════════════════════════════════════════════════════
-function makeSwipeable(el, closeFn) {
-  const handle = el.querySelector('.sheet-handle');
-  if(!handle) return;
-  let startY=0, active=false;
-  handle.addEventListener('touchstart', e => { startY=e.touches[0].clientY; active=true; el.style.transition='none'; }, {passive:true});
-  handle.addEventListener('touchmove', e => { if(!active) return; const dy=Math.max(0,e.touches[0].clientY-startY); el.style.transform=`translateX(-50%) translateY(${dy}px)`; }, {passive:true});
-  handle.addEventListener('touchend', e => {
-    if(!active) return; active=false; el.style.transition='';
-    if(Math.max(0,e.changedTouches[0].clientY-startY)>100) closeFn();
-    else el.style.transform='';
-  }, {passive:true});
+function importData(file) {
+  if(!file) return;
+  const reader=new FileReader();
+  reader.onload=e=>{
+    try{
+      const d=JSON.parse(e.target.result);
+      if(Array.isArray(d.habits)&&d.settings){S=d;save();render();showToast('✅ Данные восстановлены!');}
+      else showToast('❌ Неверный формат файла');
+    }catch{showToast('❌ Ошибка чтения файла');}
+  };
+  reader.readAsText(file);
 }
 
-// ═══════════════════════════════════════════════════════
-// PWA ICONS (generated via canvas — no external files needed)
-// ═══════════════════════════════════════════════════════
-function injectIcons() {
-  [192, 512].forEach(size => {
-    const c = document.createElement('canvas');
-    c.width = c.height = size;
-    const ctx = c.getContext('2d');
-    const r = size * 0.22;
-    ctx.beginPath();
-    ctx.moveTo(r, 0); ctx.lineTo(size-r, 0);
-    ctx.arcTo(size, 0, size, r, r);
-    ctx.lineTo(size, size-r);
-    ctx.arcTo(size, size, size-r, size, r);
-    ctx.lineTo(r, size);
-    ctx.arcTo(0, size, 0, size-r, r);
-    ctx.lineTo(0, r);
-    ctx.arcTo(0, 0, r, 0, r);
-    ctx.closePath();
-    const g = ctx.createLinearGradient(0, 0, size, size);
-    g.addColorStop(0, '#007AFF'); g.addColorStop(1, '#5856D6');
-    ctx.fillStyle = g; ctx.fill();
-    ctx.font = `bold ${size*0.42}px serif`;
-    ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('📚', size/2, size/2 + size*0.04);
-    const url = c.toDataURL('image/png');
-    const link = document.createElement('link');
-    link.rel = size===192 ? 'apple-touch-icon' : 'icon';
-    link.sizes = `${size}x${size}`; link.href = url;
-    document.head.appendChild(link);
-    // Patch manifest icon src so browsers can resolve it
-    if(size===192||size===512) {
-      fetch('manifest.json').then(r=>r.json()).then(m=>{
-        m.icons.forEach(ic=>{ if(ic.sizes===`${size}x${size}`) ic.src=url; });
-      }).catch(()=>{});
-    }
+// ─── TOGGLE COMPLETION ───────────────────────────────────────
+function toggle(id) {
+  const h = S.habits.find(h=>h.id===id);
+  if(!h) return;
+  const t = todayS();
+  const idx = h.completions.indexOf(t);
+  const prevLen = h.completions.length;
+  if(idx>=0) h.completions.splice(idx,1); else h.completions.push(t);
+  save();
+
+  if(idx<0) { // выполняем (не снимаем галочку)
+    const allDone=S.habits.every(hh=>done(hh,t));
+    if(allDone) setTimeout(()=>{celebrate();showToast('🎉 Все привычки выполнены!');},300);
+    else checkMilestone(h,prevLen);
+  }
+
+  renderToday();
+  requestAnimationFrame(()=>{
+    const btn=document.getElementById('cb-'+id);
+    if(btn){btn.classList.add('popin');setTimeout(()=>btn.classList.remove('popin'),300);}
   });
 }
 
-// ═══════════════════════════════════════════════════════
-// INIT
-// ═══════════════════════════════════════════════════════
-updateStreak();
-render();
-makeSwipeable(document.getElementById('sh'), closeSh);
-injectIcons();
-// Trigger voice list load early so British voice is ready on first tap
-if(window.speechSynthesis) { speechSynthesis.getVoices(); }
-if(S.settings.notif && 'Notification' in window && Notification.permission==='granted') scheduleNotification();
-else if(S.settings.notif && 'Notification' in window && Notification.permission==='default') {
-  setTimeout(requestNotifPermission, 3000);
+// ─── DETAIL SHEET ────────────────────────────────────────────
+let detailId = null;
+
+function openDet(id) {
+  const h = S.habits.find(h=>h.id===id);
+  if(!h) return;
+  detailId = id;
+  renderDet(h);
+  document.getElementById('det-ov').classList.add('on');
+  document.getElementById('det-sh').classList.add('on');
 }
+function closeDet() {
+  const sh = document.getElementById('det-sh');
+  sh.style.transform = '';
+  document.getElementById('det-ov').classList.remove('on');
+  sh.classList.remove('on');
+  detailId = null;
+}
+function renderDet(h) {
+  const s=streak(h), bs=bestStreak(h), p=pct(h);
+  const t=todayS(), days=last30();
+  const firstDow=(new Date(days[0]+'T12:00:00').getDay()+6)%7;
+  const dlbls=['Пн','Вт','Ср','Чт','Пт','Сб','Вс'].map(l=>`<div class="cal-dlbl">${l}</div>`).join('');
+  const empties=Array(firstDow).fill('<div class="cal-cell empty">·</div>').join('');
+  const cells=days.map(d=>{
+    const dd=new Date(d+'T12:00:00');
+    const dn=done(h,d), isT=d===t;
+    return `<div class="cal-cell ${dn?'done':''} ${isT?'today':''}"
+      style="${dn?`background:${h.color};border-radius:7px`:isT?`border:1.5px solid ${h.color};border-radius:7px`:''}"
+    >${dd.getDate()}</div>`;
+  }).join('');
+
+  const milestones=[25,50,75,100].map(m=>{
+    const reached=p>=m;
+    return `<div class="mmark" style="left:${m}%;background:${reached?h.color:'#E5E5EA'}"></div>
+      <div class="mlbl" style="left:${m}%;color:${reached?h.color:''}">${m}%</div>`;
+  }).join('');
+
+  document.getElementById('det-c').innerHTML=`
+    <div class="detail-hero">
+      <div class="d-icon" style="background:${h.color}20">${h.icon}</div>
+      <div class="d-name">${h.name}</div>
+      <div class="d-streak">🔥 Серия: ${s} дней</div>
+    </div>
+    <div class="d-stats">
+      <div class="dstat"><div class="dstat-v" style="color:${h.color}">${p}%</div><div class="dstat-l">Прогресс</div></div>
+      <div class="dstat"><div class="dstat-v">${h.completions.length}</div><div class="dstat-l">Дней</div></div>
+      <div class="dstat"><div class="dstat-v">${bs}</div><div class="dstat-l">Рекорд</div></div>
+    </div>
+    <div class="mstone">
+      <div class="mstone-t">Вехи · ${h.completions.length} из ${h.goal} дней</div>
+      <div class="mtrack">
+        <div class="mfill" style="width:${p}%;background:${h.color}"></div>
+        ${milestones}
+      </div>
+    </div>
+    <div class="calgrid-wrap">
+      <div class="cal-t">История за 30 дней</div>
+      <div class="calgrid">${dlbls}${empties}${cells}</div>
+    </div>
+    <button class="btn-danger" onclick="delHabit('${h.id}')">Удалить привычку</button>`;
+}
+
+function delHabit(id) {
+  if(!confirm('Удалить привычку? Все данные будут потеряны.')) return;
+  S.habits = S.habits.filter(h=>h.id!==id);
+  save(); closeDet(); render();
+}
+
+// ─── ADD / EDIT HABIT ────────────────────────────────────────
+const EMOJIS=['🧘','💪','📚','🏃','💧','🥗','😴','🎯','✍️','🎵','🧹','💊','🌿','🚴','🧠','🏋️','🍎','☕','🚶','🌅','🎸','📝','🏊','🧩','💝','⚡','🔔','🌍'];
+const COLORS=['#007AFF','#34C759','#FF9F0A','#FF3B30','#AF52DE','#FF2D55','#5AC8FA','#FFD60A'];
+const GOALS=[7,14,21,30,60,90,100];
+
+let ef = null; // edit form state
+
+function openAdd(editId=null) {
+  const h = editId ? S.habits.find(h=>h.id===editId) : null;
+  ef = { id:h?.id||null, icon:h?.icon||'🎯', name:h?.name||'', color:h?.color||'#007AFF', goal:h?.goal||30 };
+  document.getElementById('add-sh-t').textContent = editId?'Изменить привычку':'Новая привычка';
+  renderAddForm();
+  document.getElementById('add-ov').classList.add('on');
+  document.getElementById('add-sh').classList.add('on');
+}
+function openEdit(id) {
+  closeDet();
+  setTimeout(()=>openAdd(id), 350);
+}
+function closeAdd() {
+  const sh = document.getElementById('add-sh');
+  sh.style.transform = '';
+  document.getElementById('add-ov').classList.remove('on');
+  sh.classList.remove('on');
+  ef=null;
+}
+
+function renderAddForm() {
+  const emojiGrid=EMOJIS.map(e=>`<button class="ebtn ${ef.icon===e?'sel':''}" onclick="selEmoji('${e}')">${e}</button>`).join('');
+  const colorRow=COLORS.map(c=>`<div class="cbtn ${ef.color===c?'sel':''}" style="background:${c}" onclick="selColor('${c}')"></div>`).join('');
+  const presets=GOALS.map(n=>`<button class="preset-btn ${ef.goal===n?'sel':''}" onclick="setGoal(${n})">${n} дн.</button>`).join('');
+  document.getElementById('add-c').innerHTML=`
+    <div class="slbl">Иконка</div>
+    <div class="emoji-grid">${emojiGrid}</div>
+    <div class="fsec">
+      <div class="frow">
+        <label class="flbl">Название</label>
+        <input class="finput" id="nm" placeholder="Моя привычка" value="${ef.name}"
+          oninput="ef.name=this.value" autocapitalize="sentences" autocomplete="off">
+      </div>
+    </div>
+    <div class="slbl">Цвет</div>
+    <div class="fsec"><div class="frow"><div class="color-row">${colorRow}</div></div></div>
+    <div class="slbl">Цель</div>
+    <div class="fsec">
+      <div class="frow">
+        <label class="flbl">Дней</label>
+        <input type="range" min="1" max="365" value="${ef.goal}"
+          oninput="ef.goal=+this.value;document.getElementById('gv').textContent=this.value+' дней'">
+        <div class="goal-val" id="gv">${ef.goal} дней</div>
+      </div>
+    </div>
+    <div class="slbl">Быстрый выбор</div>
+    <div class="presets">${presets}</div>
+    <div style="height:8px"></div>`;
+  setTimeout(()=>document.getElementById('nm')?.focus(), 120);
+}
+
+function selEmoji(e){ ef.icon=e; renderAddForm(); }
+function selColor(c){ ef.color=c; renderAddForm(); }
+function setGoal(n) { ef.goal=n; renderAddForm(); }
+
+function saveHabit() {
+  const nm=(ef.name||'').trim();
+  if(!nm){ document.getElementById('nm').focus(); return; }
+  if(ef.id) {
+    const h=S.habits.find(h=>h.id===ef.id);
+    if(h){ h.icon=ef.icon; h.name=nm; h.color=ef.color; h.goal=ef.goal; }
+  } else {
+    S.habits.push({ id:uid(), icon:ef.icon, name:nm, color:ef.color, goal:ef.goal, completions:[], createdAt:todayS() });
+  }
+  save(); closeAdd(); render();
+}
+
+// ─── SWIPE TO DISMISS ────────────────────────────────────────
+function makeSwipeable(sheetEl, closeFn) {
+  const handle = sheetEl.querySelector('.sheet-handle');
+  if (!handle) return;
+  let startY = 0, active = false;
+  handle.addEventListener('touchstart', e => {
+    startY = e.touches[0].clientY; active = true;
+    sheetEl.style.transition = 'none';
+  }, {passive:true});
+  handle.addEventListener('touchmove', e => {
+    if (!active) return;
+    const dy = Math.max(0, e.touches[0].clientY - startY);
+    sheetEl.style.transform = `translateX(-50%) translateY(${dy}px)`;
+  }, {passive:true});
+  handle.addEventListener('touchend', e => {
+    if (!active) return; active = false;
+    sheetEl.style.transition = '';
+    const dy = Math.max(0, e.changedTouches[0].clientY - startY);
+    if (dy > 100) closeFn();
+    else sheetEl.style.transform = '';
+  }, {passive:true});
+}
+
+// ─── APP ICON ────────────────────────────────────────────────
+function injectIcon() {
+  const c = document.createElement('canvas');
+  c.width = c.height = 512;
+  const ctx = c.getContext('2d');
+  const g = ctx.createLinearGradient(0, 0, 512, 512);
+  g.addColorStop(0, '#007AFF'); g.addColorStop(1, '#34C759');
+  ctx.fillStyle = g; ctx.fillRect(0, 0, 512, 512);
+  ctx.font = '300px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+  ctx.fillText('✅', 256, 272);
+  const l = document.createElement('link');
+  l.rel = 'apple-touch-icon'; l.href = c.toDataURL();
+  document.head.appendChild(l);
+}
+
+// ─── INIT ────────────────────────────────────────────────────
+render();
+makeSwipeable(document.getElementById('det-sh'), closeDet);
+makeSwipeable(document.getElementById('add-sh'), closeAdd);
+injectIcon();
 </script>
 </body>
 </html>
